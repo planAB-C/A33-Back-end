@@ -45,14 +45,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests().antMatchers("/employee/login","/employee/regist").anonymous()
                 .antMatchers("/v2/**","/swagger*/**").permitAll()
+                .antMatchers(("/test/**")).permitAll()
                 .anyRequest().authenticated() ;
 
-        /*
-        "/swagger-resources/**"
-        ,"/webjars/**"
-        ,"/v2/**"
-        ,"/swagger-ui.html/**"
-         */
         http.addFilterBefore(tokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class) ;
 
         http.cors() ;

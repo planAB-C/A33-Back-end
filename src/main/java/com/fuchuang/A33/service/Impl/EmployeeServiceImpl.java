@@ -19,6 +19,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Service;
@@ -48,9 +49,13 @@ public class EmployeeServiceImpl implements EmployeeService {
             throw new RuntimeException("the email is not belong employee") ;
         }
         String token = UUID.randomUUID().toString();
+        //过滤器第一次无法得到的token,需要我们手动去传递
         LoginEmployee loginEmployee = (LoginEmployee) authenticate.getPrincipal();
         EmployeeDTO employeeDTO = new EmployeeDTO();
-        BeanUtil.copyProperties(loginEmployee,employeeDTO);
+        //注意不能直接将loginEmployee赋值给employeeDTo，而是应该获取loginEmployee中的Employee部分
+        BeanUtil.copyProperties(loginEmployee.getEmployee(),employeeDTO);
+        employeeDTO.setPermissions(loginEmployee.getPermissions());
+        System.out.println(employeeDTO);
         Map<String, Object> map = BeanUtil.beanToMap(employeeDTO ,
                 new HashMap<>() ,
                 CopyOptions.create().setIgnoreNullValue(true).setFieldValueEditor((filedName,filedValue)->{

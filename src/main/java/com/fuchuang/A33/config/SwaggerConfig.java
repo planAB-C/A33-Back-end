@@ -1,4 +1,4 @@
-package com.fuchuang.A33;
+package com.fuchuang.A33.config;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import org.springframework.context.annotation.Bean;

@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.fuchuang.A33.DTO.EmployeeDTO;
 import com.fuchuang.A33.entity.Employee;
 import com.fuchuang.A33.entity.LoginEmployee;
+import com.fuchuang.A33.utils.EmployeeHolder;
 import io.netty.util.internal.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -47,6 +48,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                 new UsernamePasswordAuthenticationToken(authentication, null, loginEmployee.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         stringRedisTemplate.expire(token,60*30, TimeUnit.MINUTES) ;
+        EmployeeHolder.saveEmloyee(employeeDTO);
         filterChain.doFilter(request,response);
     }
 }
