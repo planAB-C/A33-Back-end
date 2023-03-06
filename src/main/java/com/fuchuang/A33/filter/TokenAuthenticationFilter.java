@@ -1,8 +1,10 @@
 package com.fuchuang.A33.filter;
 
 import cn.hutool.core.bean.BeanUtil;
-import com.fuchuang.A33.entity.LoginUser;
-import com.fuchuang.A33.entity.User;
+import com.fuchuang.A33.DTO.EmployeeDTO;
+import com.fuchuang.A33.entity.Employee;
+import com.fuchuang.A33.entity.LoginEmployee;
+import io.netty.util.internal.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,35 +18,35 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Component
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
-    private StringRedisTemplate redisTemplate ;
+    private StringRedisTemplate stringRedisTemplate ;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        //获取token
         String token = request.getHeader("token");
-        //检查token是否为空，为空，放行，因为有可能是登录页面，哪怕不是登陆页面，后面的过滤器仍然会进行过滤
         if (!StringUtils.hasText(token)){
-            //放行
             filterChain.doFilter(request,response);
             return;
         }
-        //从redis中获取数据
-        User user = BeanUtil.fillBeanWithMap(redisTemplate.opsForHash().entries(token), new User(), false);
-        if (BeanUtil.isEmpty(user)){
-            throw new RuntimeException("there is a wrong now") ;
+
+        Map<Object, Object> authentication = stringRedisTemplate.opsForHash().entries(token);
+        EmployeeDTO employeeDTO = BeanUtil.fillBeanWithMap(authentication, new EmployeeDTO(), true);
+        if(authentication.isEmpty()){
+            throw new RuntimeException("can not find the user now") ;
         }
-        //存入SecurityContextHoledr，这个容器会存储用户信息，后面的过滤器会去获得SecurityContextHolder的对象并进行检查是否认证成功
-        //含有三个参数的UsernamePasswordAuthenticationToken方法，它内部授予了认证
-        LoginUser loginUser = new LoginUser(user, user.getPermissions());
+        Employee employee = new Employee();
+        BeanUtil.copyProperties(employeeDTO,employee,false);
+        LoginEmployee loginEmployee = new LoginEmployee(employee,employeeDTO.getPermissions());
         UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(loginUser, null, loginUser.getAuthorities());
+                new UsernamePasswordAuthenticationToken(authentication, null, loginEmployee.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+        stringRedisTemplate.expire(token,60*30, TimeUnit.MINUTES) ;
         filterChain.doFilter(request,response);
     }
 }

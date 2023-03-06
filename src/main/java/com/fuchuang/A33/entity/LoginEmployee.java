@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,16 +17,17 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @NoArgsConstructor
 //创建一个LoginUser类，实现UserDetails接口，这个就是实现验证的关键
-public class LoginUser implements UserDetails {
+public class LoginEmployee implements UserDetails {
 
-    private User user ;
+    private Employee employee;
 
     private List<String> permissions ;
 
-    private List<SimpleGrantedAuthority> simpleGrantedAuthorityList = new ArrayList<>();
+    //这个地方要赋予空指针，因为构造方法里没有传参数给它
+    private List<SimpleGrantedAuthority> simpleGrantedAuthorityList =  new ArrayList<>() ;
 
-    public LoginUser(User user ,List<String> permissons) {
-        this.user = user ;
+    public LoginEmployee(Employee employee, List<String> permissons) {
+        this.employee = employee;
         this.permissions = permissons ;
     }
 
@@ -41,12 +43,12 @@ public class LoginUser implements UserDetails {
 
     @Override
     public String getPassword() {
-        return user.getPassword();
+        return new BCryptPasswordEncoder().encode("") ;
     }
 
     @Override
     public String getUsername() {
-        return user.getUsername();
+        return employee.getEmail();
     }
 
     @Override

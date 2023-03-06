@@ -12,8 +12,6 @@ public class Result {
     private String message;
     private Object data;
 
-
-
     public static Result success(int state, Object data){
         Result result = new Result();
         result.setData(data);

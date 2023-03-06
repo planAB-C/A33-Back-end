@@ -1,52 +1,39 @@
 package com.fuchuang.A33;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.fuchuang.A33.entity.Menu;
-import com.fuchuang.A33.entity.User;
-import com.fuchuang.A33.mapper.MenuMapper;
-import com.fuchuang.A33.mapper.UserMapper;
+import com.fuchuang.A33.entity.Authentication;
+import com.fuchuang.A33.entity.Employee;
+import com.fuchuang.A33.mapper.AuthenticationMapper;
+import com.fuchuang.A33.mapper.EmployeeMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.List;
+import java.util.ArrayList;
 
 @SpringBootTest
 class SpringSecurityApplicationTests {
 
+    @Autowired
+    private EmployeeMapper employeeMapper ;
+
+    @Autowired
+    private AuthenticationMapper authenticationMapper ;
+
     @Test
-    void contextLoads() {
+    void test1(){
+        QueryWrapper<Employee> wrapper = new QueryWrapper<Employee>().eq("id", 1);
+        Employee employee = employeeMapper.selectOne(wrapper);
+        System.out.println(employee);
     }
 
-    @Autowired
-    private PasswordEncoder passwordEncoder ;
-
-    @Autowired
-    private UserMapper userMapper ;
-
-    @Autowired
-    private MenuMapper menuMapper ;
-
     @Test
-    public void test1(){
-        List<User> users = userMapper.selectList(new QueryWrapper<>());
-        for (User user : users) {
-            System.out.println(user);
+    void test2(){
+        Employee employee = employeeMapper.selectOne(new QueryWrapper<Employee>().eq("email", "2359643054@qq.com"));
+        ArrayList<Authentication> authentications = authenticationMapper.getAuthenticationsByPosition(employee.getID(), employee.getPosition());
+        for (Authentication authentication : authentications) {
+            System.out.println(authentication.getAuthentication());
         }
     }
 
-    @Test
-    public void test2(){
-        String encode = passwordEncoder.encode("1234");
-        System.out.println(encode);
-    }
-
-    @Test
-    public void test3(){
-        List<Menu> allMenus = menuMapper.getAllMenus(1);
-        for (Menu allMenu : allMenus) {
-            System.out.println(allMenu);
-        }
-    }
 }

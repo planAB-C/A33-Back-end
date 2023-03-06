@@ -3,11 +3,13 @@ package com.fuchuang.A33.entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.stereotype.Component;
 
-@Data
+@Component
 @AllArgsConstructor
 @NoArgsConstructor
-public class Menu {
-    Integer userId ;
-    String menu ;
+@Data
+public class Authentication {
+    private Integer ID ;
+    private String authentication ;
 }
