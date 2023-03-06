@@ -74,7 +74,6 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
         Long count = employeeMapper.selectCount(new QueryWrapper<>()) + 1;
         String ID = null ;
-        //TODO 添加权限
         if(count<10) ID = "0" + count ;
         else ID = count.toString() ;
         int rows = employeeMapper.insert(new Employee(ID, name, email, position, shop_id, new ArrayList<>()));
