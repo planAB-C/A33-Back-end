@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/employee")
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-@Api("员工接口")
+@Api(tags = "员工接口")
 public class EmployeeController {
 
     @Autowired
