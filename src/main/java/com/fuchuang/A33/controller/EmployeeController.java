@@ -25,7 +25,7 @@ public class EmployeeController {
     private EmployeeServiceImpl employeeService ;
 
     @GetMapping("/login")
-    @ApiOperation(value = "登陆")
+    @ApiOperation(value = "登陆（返回值是token，前端需要将token设置为全局变量，每次访问时请求头都需要携带token）")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "email", value = "员工邮箱" ,dataType= "String")
     })
@@ -34,7 +34,7 @@ public class EmployeeController {
     }
 
     @PostMapping("/regist")
-    @ApiOperation(value = "登陆")
+    @ApiOperation(value = "注册")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "name", value = "员工姓名" ,dataType= "String") ,
             @ApiImplicitParam(name = "email", value = "员工邮箱" ,dataType= "String") ,
