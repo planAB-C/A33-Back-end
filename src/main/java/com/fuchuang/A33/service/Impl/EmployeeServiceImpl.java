@@ -2,33 +2,26 @@ package com.fuchuang.A33.service.Impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
-import cn.hutool.core.io.resource.StringResource;
 import cn.hutool.core.lang.UUID;
-import cn.hutool.system.RuntimeInfo;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.fuchuang.A33.DTO.EmployeeDTO;
 import com.fuchuang.A33.entity.Employee;
 import com.fuchuang.A33.entity.LoginEmployee;
-import com.fuchuang.A33.mapper.AuthenticationMapper;
 import com.fuchuang.A33.mapper.EmployeeMapper;
-import com.fuchuang.A33.service.EmployeeService;
-import com.fuchuang.A33.service.Impl.Security.EmployeeDetailsImpl;
+import com.fuchuang.A33.service.IEmployeeService;
 import com.fuchuang.A33.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Service
-public class EmployeeServiceImpl implements EmployeeService {
+public class EmployeeServiceImpl implements IEmployeeService {
 
     @Autowired
     private EmployeeMapper employeeMapper ;
