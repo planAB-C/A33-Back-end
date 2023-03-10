@@ -1,13 +1,23 @@
 package com.fuchuang.A33.controller;
 
+import com.fuchuang.A33.service.Impl.LocationServiceImpl;
 import com.fuchuang.A33.utils.Result;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/location")
+@Api(tags = "员工班次")
 public class LocationController {
+
+    @Autowired
+    private LocationServiceImpl locationService ;
 
     @GetMapping("/week")
     public Result showAllLocationsByWeek(LocalDateTime dateTimeWeek){
@@ -30,7 +40,17 @@ public class LocationController {
     }
 
     @PutMapping("/manage")
-    public Result manageLocationsByHand(LocalDateTime dateTimeWeek , String LocationID , String employeeID){
+    @ApiOperation(value = "手动安排空闲的员工")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "locationID", value = "值班号" ,dataType= "String") ,
+            @ApiImplicitParam(name = "employeeID", value = "员工ID号" ,dataType= "String")
+    })
+    public Result manageFreeEmployeeLocationsByHand( String locationID , String employeeID){
+        return locationService.manageFreeEmployeeLocationsByHand( locationID, employeeID) ;
+    }
+
+    @PutMapping("/manageOther")
+    public Result manageOtherEmployeeLocationsByHand( String locationID , String employeeID){
         return Result.success(200) ;
     }
 
