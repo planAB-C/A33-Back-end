@@ -14,7 +14,7 @@ public interface ILocationService {
     //分组展示，个人理解为按照职位展示
     Result showAllLocationsByGroup(String group);
     //TODO 毛群祥
-    Result showEmployeeDeatils(String employeeID) ;
+    Result showEmployeeDetails(String employeeID) ;
     Result manageEmployeeLocationsByHand( String LocationID , String employeeID) ;
     //TODO 张子豪
     Result removeLocationsByHand(LocalDateTime dateTimeWeek , String LocationID , String employeeID) ;
