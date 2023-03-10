@@ -13,7 +13,6 @@ public interface ILocationService {
     Result showAllLocationsByDay(LocalDateTime dateTimeDay);
     //分组展示，个人理解为按照职位展示
     Result showAllLocationsByGroup(String group);
-    //TODO 毛群祥
     Result showEmployeeDetails(String employeeID) ;
     Result manageEmployeeLocationsByHand( String LocationID , String employeeID) ;
     //TODO 张子豪
