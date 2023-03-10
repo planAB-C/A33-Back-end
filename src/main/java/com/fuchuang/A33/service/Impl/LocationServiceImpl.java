@@ -1,11 +1,14 @@
 package com.fuchuang.A33.service.Impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.fuchuang.A33.DTO.EmployeeDetailsDTO;
 import com.fuchuang.A33.entity.Employee;
 import com.fuchuang.A33.entity.Locations;
+import com.fuchuang.A33.entity.Shop;
 import com.fuchuang.A33.entity.Working;
 import com.fuchuang.A33.mapper.EmployeeMapper;
 import com.fuchuang.A33.mapper.LocationsMapper;
+import com.fuchuang.A33.mapper.ShopMapper;
 import com.fuchuang.A33.mapper.WorkingMapper;
 import com.fuchuang.A33.service.ILocationService;
 import com.fuchuang.A33.utils.Result;
@@ -30,6 +33,9 @@ public class LocationServiceImpl implements ILocationService {
 
     @Autowired
     private WorkingMapper workingMapper ;
+
+    @Autowired
+    private ShopMapper shopMapper ;
 
     @Override
     public Result showAllLocationsByWeek(LocalDateTime dateTimeWeek) {
@@ -57,7 +63,19 @@ public class LocationServiceImpl implements ILocationService {
         if (employee==null){
             throw new RuntimeException("the employee is not excite now , please sure it now") ;
         }
-        return Result.success(200,employee);
+        //对需要返回的具体员工信息封装到EmployeeDetails类中
+        EmployeeDetailsDTO employeeDetailsDTO = new EmployeeDetailsDTO();
+        employeeDetailsDTO.setEmail(employee.getEmail());
+        Employee group = employeeMapper.selectOne(new QueryWrapper<Employee>().eq("ID", employee.getID()));
+        if (Objects.isNull(group))  employeeDetailsDTO.setGroupName("无");
+        else employeeDetailsDTO.setGroupName(group.getName());
+        employeeDetailsDTO.setPosition(employee.getPosition());
+        Shop shop = shopMapper.selectOne(new QueryWrapper<Shop>().eq("ID", employee.getShopID()));
+        if (Objects.isNull(shop)) throw new RuntimeException("System has some wrongs now") ;
+        else employeeDetailsDTO.setShopName(shop.getName());
+        employeeDetailsDTO.setID(employee.getID());
+        employeeDetailsDTO.setName(employee.getName());
+        return Result.success(200,employeeDetailsDTO);
     }
 
     /**

@@ -39,9 +39,9 @@ public class LocationController {
     }
 
     @PreAuthorize("hasAnyAuthority('root','manage','group')")
-    @ApiOperation(value = "展示员工的具体细节")
+    @ApiOperation(value = "展示员工信息的具体细节")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "emoloyeeID", value = "员工ID号" ,dataType= "String") ,
+            @ApiImplicitParam(name = "employeeID", value = "员工ID号" ,dataType= "String") ,
     })
     @GetMapping("/details")
     public Result showEmployeeDeatils(String employeeID){
