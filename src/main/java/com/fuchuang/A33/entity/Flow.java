@@ -11,12 +11,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @TableName("t_flow")
 public class Flow {
-    @TableField("ID")
+    //与班次ID相同
     private String ID ;
     @TableField("permit_flow")
-    private Integer permitFlow ;
-    @TableField("real_flow")
-    private Integer realFlow  ;
-    @TableField("location_ID")
-    private String locationID ;
+    private double permitFlow ;
 }

@@ -9,6 +9,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.time.DayOfWeek;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 @SpringBootTest
@@ -34,6 +38,21 @@ class SpringSecurityApplicationTests {
         for (Authentication authentication : authentications) {
             System.out.println(authentication.getAuthentication());
         }
+    }
+
+    @Test
+    void test3(){
+        LocalDateTime now = LocalDateTime.now();
+        int year = now.getYear();
+        Month month = now.getMonth();
+        int day = now.getDayOfMonth();
+        DayOfWeek dayOfWeek = now.getDayOfWeek();
+        String format = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        System.out.println(year);
+        System.out.println(month);
+        System.out.println(day);
+        System.out.println(dayOfWeek);
+        System.out.println(format);
     }
 
 }

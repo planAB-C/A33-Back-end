@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @TableName("t_locations")
 public class Locations {
+    //日期+班次ID
     private String ID ;
     @TableField("current_number")
     private Integer currentNumber ;
