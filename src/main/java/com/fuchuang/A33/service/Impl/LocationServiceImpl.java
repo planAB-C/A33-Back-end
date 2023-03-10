@@ -53,12 +53,12 @@ public class LocationServiceImpl implements ILocationService {
     }
 
     /**
-     * 展示员工具体细节信息
+     * 展示员工具体细节信息，通过封装员工信息得到
      * @param employeeID
      * @return
      */
     @Override
-    public Result showEmployeeDeatils(String employeeID) {
+    public Result showEmployeeDetails(String employeeID) {
         Employee employee = employeeMapper.selectOne(new QueryWrapper<Employee>().eq("ID", employeeID));
         if (employee==null){
             throw new RuntimeException("the employee is not excite now , please sure it now") ;
