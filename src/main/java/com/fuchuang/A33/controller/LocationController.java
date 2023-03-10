@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -19,51 +20,58 @@ public class LocationController {
     @Autowired
     private LocationServiceImpl locationService ;
 
+    @PreAuthorize("hasAnyAuthority('root','manage','group')")
     @GetMapping("/week")
     public Result showAllLocationsByWeek(LocalDateTime dateTimeWeek){
         return Result.success(200) ;
     }
 
+    @PreAuthorize("hasAnyAuthority('root','manage','group')")
     @GetMapping("/day")
     public Result showAllLocationsByDay(LocalDateTime dateTimeDay){
         return Result.success(200) ;
     }
 
+    @PreAuthorize("hasAnyAuthority('root','manage','group')")
     @GetMapping("/group")
     public Result showAllLocationsByGroup(String group){
         return Result.success(200) ;
     }
 
+    @PreAuthorize("hasAnyAuthority('root','manage','group')")
+    @ApiOperation(value = "展示员工的具体细节")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "emoloyeeID", value = "员工ID号" ,dataType= "String") ,
+    })
     @GetMapping("/details")
-    public Result showEmployeeDeatils(String ID){
-        return Result.success(200) ;
+    public Result showEmployeeDeatils(String employeeID){
+        return locationService.showEmployeeDeatils(employeeID) ;
     }
 
+    @PreAuthorize("hasAnyAuthority('root','manage')")
     @PutMapping("/manage")
     @ApiOperation(value = "手动安排空闲的员工")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "locationID", value = "值班号" ,dataType= "String") ,
             @ApiImplicitParam(name = "employeeID", value = "员工ID号" ,dataType= "String")
     })
-    public Result manageFreeEmployeeLocationsByHand( String locationID , String employeeID){
-        return locationService.manageFreeEmployeeLocationsByHand( locationID, employeeID) ;
+    public Result manageEmployeeLocationsByHand( String locationID , String employeeID){
+        return locationService.manageEmployeeLocationsByHand( locationID, employeeID) ;
     }
 
-    @PutMapping("/manageOther")
-    public Result manageOtherEmployeeLocationsByHand( String locationID , String employeeID){
-        return Result.success(200) ;
-    }
-
+    @PreAuthorize("hasAnyAuthority('root','manage')")
     @DeleteMapping("/remove")
     public Result removeLocationsByHand(LocalDateTime dateTimeWeek , String LocationID , String employeeID){
         return Result.success(200) ;
     }
 
+    @PreAuthorize("hasAnyAuthority('root','manage','group')")
     @GetMapping("/name")
     public Result selectLocationByName(LocalDateTime dateTimeWeek , String LocationID , String employeeID){
         return Result.success(200) ;
     }
 
+    @PreAuthorize("hasAnyAuthority('root','manage','group')")
     @GetMapping("/freeEmployees")
     public Result showFreeEmployees(LocalDateTime dateTimeWeek , String LocationID , String employeeID){
         return Result.success(200) ;

@@ -74,7 +74,7 @@ public class EmployeeServiceImpl implements IEmployeeService {
         String ID = null ;
         if(count<10) ID = "0" + count ;
         else ID = count.toString() ;
-        int rows = employeeMapper.insert(new Employee(ID, name, email, position, shop_id, new ArrayList<>()));
+        int rows = employeeMapper.insert(new Employee(ID, name, email, position, shop_id, "null"));
         if (rows==0){
             throw new RuntimeException("the system has some problems now") ;
         }

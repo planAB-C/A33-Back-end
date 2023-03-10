@@ -23,15 +23,17 @@ public class Employee  {
     private String position ;
     @TableField("shop_ID")
     private String  shopID ;
+    private String belong ;
     @TableField(exist = false)
     private List<String> permissions ;
 
-    public Employee(String ID, String name, String email, String position, String shopID ){
+    public Employee(String ID, String name, String email, String position, String shopID, String belong ){
         this.ID = ID ;
         this.name = name ;
         this.email = email ;
         this.position = position ;
         this.shopID = shopID ;
         permissions = new ArrayList<String>() ;
+        this.belong = belong ;
     }
 }
