@@ -44,7 +44,7 @@ public class LocationController {
             @ApiImplicitParam(name = "employeeID", value = "员工ID号" ,dataType= "String") ,
     })
     @GetMapping("/details")
-    public Result showEmployeeDeatils(String employeeID){
+    public Result showEmployeeDetails(String employeeID){
         return locationService.showEmployeeDetails(employeeID) ;
     }
 
