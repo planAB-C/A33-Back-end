@@ -45,7 +45,7 @@ public class LocationController {
     })
     @GetMapping("/details")
     public Result showEmployeeDeatils(String employeeID){
-        return locationService.showEmployeeDeatils(employeeID) ;
+        return locationService.showEmployeeDetails(employeeID) ;
     }
 
     @PreAuthorize("hasAnyAuthority('root','manage')")
