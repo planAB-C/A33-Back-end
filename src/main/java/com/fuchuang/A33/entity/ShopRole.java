@@ -5,18 +5,16 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.stereotype.Component;
 
 @Data
-@Component
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName("t_role")
-public class Role {
-    @TableField("role_type")
-    private String roleType ;
+@TableName("t_shop_role")
+public class ShopRole {
     @TableField("shop_ID")
     private String shopID ;
-    @TableField("role_value")
-    private String roleValue ;
+    @TableField("shop_role_type")
+    private String shopRoleType ;
+    @TableField("shop_role_value")
+    private String shopRoleValue ;
 }
