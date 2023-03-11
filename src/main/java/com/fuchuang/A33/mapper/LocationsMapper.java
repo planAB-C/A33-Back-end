@@ -1,9 +1,9 @@
 package com.fuchuang.A33.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.fuchuang.A33.entity.Locations;
+import com.fuchuang.A33.entity.Location;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface LocationsMapper extends BaseMapper<Locations> {
+public interface LocationsMapper extends BaseMapper<Location> {
 }

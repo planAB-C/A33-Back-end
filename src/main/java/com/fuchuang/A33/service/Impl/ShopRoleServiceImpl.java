@@ -37,7 +37,7 @@ public class ShopRoleServiceImpl implements IShopRoleService {
                     .eq("shopID",shopID)
                     .eq("shop_role_type",shopRoleType).eq("shop_role_value",shopRoleValue)) ;
         }
-        if (rows==0) throw new RuntimeException("操作不成功，请确认后重新操作") ;
+        if (rows==0) return Result.fail(500,"操作不成功，请确认后重新操作") ;
         return Result.success(200);
     }
 
@@ -45,7 +45,7 @@ public class ShopRoleServiceImpl implements IShopRoleService {
     public Result removeShopRoleService(String shopID , String shopRoleType) {
         int rows = shopRoleMapper.delete(new QueryWrapper<ShopRole>().eq("shop_ID",shopID).eq("shop_Role_Type",shopRoleType)) ;
         if (rows==0){
-            throw new RuntimeException("操作不成功，请重新操作") ;
+            return Result.fail(500,"操作不成功，请重新操作") ;
         }
         return Result.success(200);
     }

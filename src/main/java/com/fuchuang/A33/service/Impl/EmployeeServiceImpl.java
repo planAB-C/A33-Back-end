@@ -9,6 +9,7 @@ import com.fuchuang.A33.entity.Employee;
 import com.fuchuang.A33.entity.LoginEmployee;
 import com.fuchuang.A33.mapper.EmployeeMapper;
 import com.fuchuang.A33.service.IEmployeeService;
+import com.fuchuang.A33.utils.Constants;
 import com.fuchuang.A33.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -39,7 +40,7 @@ public class EmployeeServiceImpl implements IEmployeeService {
                 = new UsernamePasswordAuthenticationToken(email,"");
         Authentication authenticate = authenticationManager.authenticate(authenticationToken);
         if (Objects.isNull(employee)){
-            throw new RuntimeException("the email is not belong employee") ;
+            return Result.fail(500,"the email is not belong employee") ;
         }
         String token = UUID.randomUUID().toString();
         //过滤器第一次无法得到的token,需要我们手动去传递
@@ -48,7 +49,6 @@ public class EmployeeServiceImpl implements IEmployeeService {
         //注意不能直接将loginEmployee赋值给employeeDTo，而是应该获取loginEmployee中的Employee部分
         BeanUtil.copyProperties(loginEmployee.getEmployee(),employeeDTO);
         employeeDTO.setPermissions(loginEmployee.getPermissions());
-        System.out.println(employeeDTO);
         Map<String, Object> map = BeanUtil.beanToMap(employeeDTO ,
                 new HashMap<>() ,
                 CopyOptions.create().setIgnoreNullValue(true).setFieldValueEditor((filedName,filedValue)->{
@@ -59,24 +59,25 @@ public class EmployeeServiceImpl implements IEmployeeService {
                     }
                     return filedValue ;
                 }));
-        stringRedisTemplate.opsForHash().putAll(token,map);
-        stringRedisTemplate.expire(token,60*30, TimeUnit.MINUTES) ;
+        stringRedisTemplate.opsForHash().putAll(Constants.EMPLOYEE_TOKEN + token,map);
+        stringRedisTemplate.expire(Constants.EMPLOYEE_TOKEN + token,60*30, TimeUnit.SECONDS) ;
         return Result.success(200,token);
     }
 
     @Override
-    public Result regist(String name, String email, String position, String shop_id) {
+    public Result regist(String name, String email, String position, String shopId ,String belong) {
         Employee employee = employeeMapper.selectOne(new QueryWrapper<Employee>().eq("email", email));
         if(!Objects.isNull(employee)){
-            throw new RuntimeException("this email has already registed ");
+            return Result.fail(500,"this email has already registed ");
         }
         Long count = employeeMapper.selectCount(new QueryWrapper<>()) + 1;
         String ID = null ;
         if(count<10) ID = "0" + count ;
         else ID = count.toString() ;
-        int rows = employeeMapper.insert(new Employee(ID, name, email, position, shop_id, "null"));
+        Employee group = employeeMapper.selectOne(new QueryWrapper<Employee>().eq("email", belong));
+        int rows = employeeMapper.insert(new Employee(ID, name, email, position, shopId ,group.getID() ));
         if (rows==0){
-            throw new RuntimeException("the system has some problems now") ;
+            return Result.fail(500,"the system has some problems now") ;
         }
         return Result.success(200) ;
     }

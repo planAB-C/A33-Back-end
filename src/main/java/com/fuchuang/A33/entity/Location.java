@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @TableName("t_locations")
-public class Locations {
+public class Location {
     //日期+班次ID
     private String ID ;
     @TableField("current_number")

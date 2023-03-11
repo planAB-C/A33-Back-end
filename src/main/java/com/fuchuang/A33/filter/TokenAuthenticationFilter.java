@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.fuchuang.A33.DTO.EmployeeDTO;
 import com.fuchuang.A33.entity.Employee;
 import com.fuchuang.A33.entity.LoginEmployee;
+import com.fuchuang.A33.utils.Constants;
 import com.fuchuang.A33.utils.EmployeeHolder;
 import io.netty.util.internal.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +36,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request,response);
             return;
         }
-
+        token = Constants.EMPLOYEE_TOKEN + token ;
         Map<Object, Object> authentication = stringRedisTemplate.opsForHash().entries(token);
         EmployeeDTO employeeDTO = BeanUtil.fillBeanWithMap(authentication, new EmployeeDTO(), true);
         if(authentication.isEmpty()){
@@ -47,7 +48,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(authentication, null, loginEmployee.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-        stringRedisTemplate.expire(token,60*30, TimeUnit.MINUTES) ;
+        stringRedisTemplate.expire(token,60*30, TimeUnit.SECONDS) ;
         EmployeeHolder.saveEmloyee(employeeDTO);
         filterChain.doFilter(request,response);
     }

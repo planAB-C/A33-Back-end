@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 public interface IEmployeeService {
     Result login(String email);
 
-    Result regist(String name, String email, String position, String shop_id);
+    Result regist(String name, String email, String position, String shopId ,String Belong);
 }

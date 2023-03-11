@@ -36,4 +36,13 @@ public class Employee  {
         permissions = new ArrayList<String>() ;
         this.belong = belong ;
     }
+
+    public Employee(String id, String name, String email, String position, String shop_id) {
+        this.ID = ID ;
+        this.name = name ;
+        this.email = email ;
+        this.position = position ;
+        this.shopID = shopID ;
+        permissions = new ArrayList<String>() ;
+    }
 }
