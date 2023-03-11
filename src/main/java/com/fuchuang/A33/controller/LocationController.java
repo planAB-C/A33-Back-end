@@ -6,11 +6,13 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @RestController
 @RequestMapping("/location")
@@ -20,37 +22,63 @@ public class LocationController {
     @Autowired
     private LocationServiceImpl locationService ;
 
+    @PreAuthorize("hasAnyAuthority('root','manage','group','view')")
+    @GetMapping("/monday")
+    @ApiOperation(value = "获取本周星期一的日期")
+    public Result getMondayThisWeek(){
+        return locationService.getMondayThisWeek() ;
+    }
+
     @PreAuthorize("hasAnyAuthority('root','manage','group')")
     @GetMapping("/week")
-    public Result showAllLocationsByWeek(LocalDateTime dateTimeWeek){
-        return Result.success(200) ;
+    @ApiOperation(value = "按周展示员工的工作安排")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "dateTimeWeek", value = "选中的周" ,dataType= "String")
+    })
+    public Result showAllLocationsByWeek(String dateTimeWeek){
+        return locationService.showAllLocationsByWeek(dateTimeWeek) ;
     }
 
     @PreAuthorize("hasAnyAuthority('root','manage','group')")
     @GetMapping("/day")
-    public Result showAllLocationsByDay(LocalDateTime dateTimeDay){
-        return Result.success(200) ;
+    @ApiOperation(value = "按日展示员工的工作安排")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "dateTimeDay", value = "选中的日期" ,dataType= "String") ,
+    })
+    public Result showAllLocationsByDay(String dateTimeDay){
+        return locationService.showAllLocationsByDay(dateTimeDay) ;
+    }
+
+    @PreAuthorize("hasAnyAuthority('root','manage')")
+    @GetMapping("/allGroup")
+    @ApiOperation(value = "展示所有的小组")
+    public Result showAllGroup(){
+        return locationService.showAllGroup() ;
     }
 
     @PreAuthorize("hasAnyAuthority('root','manage','group')")
     @GetMapping("/group")
-    public Result showAllLocationsByGroup(String group){
-        return Result.success(200) ;
+    @ApiOperation(value = "按组展示员工的工作安排")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "groupID", value = "选中的组别，将选中的组的ID信息传入" ,dataType= "Integer") ,
+    })
+    public Result showAllLocationsByGroup(Integer groupID){
+        return locationService.showAllLocationsByGroup(groupID) ;
     }
 
     @PreAuthorize("hasAnyAuthority('root','manage','group')")
+    @GetMapping("/details")
     @ApiOperation(value = "展示员工信息的具体细节")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "employeeID", value = "员工ID号" ,dataType= "String") ,
     })
-    @GetMapping("/details")
     public Result showEmployeeDetails(String employeeID){
         return locationService.showEmployeeDetails(employeeID) ;
     }
 
     @PreAuthorize("hasAnyAuthority('root','manage')")
     @PutMapping("/manage")
-    @ApiOperation(value = "手动安排空闲的员工")
+    @ApiOperation(value = "手动安排员工")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "locationID", value = "值班号" ,dataType= "String") ,
             @ApiImplicitParam(name = "employeeID", value = "员工ID号" ,dataType= "String")

@@ -37,10 +37,11 @@ public class EmployeeController {
             @ApiImplicitParam(name = "name", value = "员工姓名" ,dataType= "String") ,
             @ApiImplicitParam(name = "email", value = "员工邮箱" ,dataType= "String") ,
             @ApiImplicitParam(name = "position", value = "员工职位" ,dataType= "String") ,
-            @ApiImplicitParam(name = "shop_ID", value = "员工所属商店的ID号" ,dataType= "String")
+            @ApiImplicitParam(name = "shop_ID", value = "员工所属商店的ID号" ,dataType= "String") ,
+            @ApiImplicitParam(name = "belong", value = "员工所属的组长的邮箱" ,dataType= "String")
     })
-    public Result regist(String name , String email ,String position ,String shop_ID){
-        return employeeService.regist(name ,email ,position ,shop_ID) ;
+    public Result regist(String name , String email ,String position ,String shop_ID ,String belong){
+        return employeeService.regist(name ,email ,position ,shop_ID ,belong) ;
     }
 
 
