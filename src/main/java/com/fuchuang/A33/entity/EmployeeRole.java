@@ -11,12 +11,12 @@ import org.springframework.stereotype.Component;
 @Component
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName("t_employ_role")
+@TableName("t_employee_role")
 public class EmployeeRole {
-    @TableField("hobby")
-    private String hobby ;
-    @TableField("employee_id")
-    private String employId ;
+    @TableField("employee_ID")
+    private String employeeID ;
+    @TableField("hobby_type")
+    private String hobbyType ;
     @TableField("hobby_value")
     private String hobbyValue ;
 }

@@ -75,6 +75,7 @@ public class LocationServiceImpl implements ILocationService {
         else employeeDetailsDTO.setShopName(shop.getName());
         employeeDetailsDTO.setID(employee.getID());
         employeeDetailsDTO.setName(employee.getName());
+        //TODO 将员工偏好计入进来
         return Result.success(200,employeeDetailsDTO);
     }
 
