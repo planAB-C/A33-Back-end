@@ -68,7 +68,6 @@ public class EmployeeController {
     @PutMapping("/updateOwn")
     @ApiOperation(value = "修改个人信息")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "name", value = "员工姓名" ,dataType= "String") ,
             @ApiImplicitParam(name = "email", value = "员工邮箱" ,dataType= "String") ,
             @ApiImplicitParam(name = "position", value = "员工职位" ,dataType= "String") ,
     })
