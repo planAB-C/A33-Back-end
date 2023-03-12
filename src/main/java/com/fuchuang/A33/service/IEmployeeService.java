@@ -8,4 +8,9 @@ public interface IEmployeeService {
     Result login(String email);
     Result regist(String name, String email, String position, String shopId ,String Belong);
     Result changeGroup(String groupEmail) ;
+    Result updateEmployeeInformation(String email, String position);
+    Result showOtherImformation();
+    Result showEmployeeByRoot(String shopID);
+    Result updateOtherImformation(String ID, String email, String position, String belong);
+    Result showAllShop();
 }

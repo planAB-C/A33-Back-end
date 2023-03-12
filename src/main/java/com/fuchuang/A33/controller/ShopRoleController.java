@@ -34,7 +34,7 @@ public class ShopRoleController {
     }
 
 
-    @PreAuthorize("hasAnyAuthority('root','manage','group','view')")
+    @PreAuthorize("hasAnyAuthority('root','boss')")
     @PostMapping("/addRole")
     @ApiOperation(value = "添加商铺规则")
     @ApiImplicitParams({
@@ -46,7 +46,7 @@ public class ShopRoleController {
         return shopRoleService.addShopRoleService(shopID, shopRoleType, shopRoleValue) ;
     }
 
-    @PreAuthorize("hasAnyAuthority('root','manage','group','view')")
+    @PreAuthorize("hasAnyAuthority('root','boss')")
     @PostMapping("/updateRole")
     @ApiOperation(value = "修改商铺规则")
     @ApiImplicitParams({
@@ -58,7 +58,7 @@ public class ShopRoleController {
         return shopRoleService.UpdateShopRoleService(shopID, shopRoleType, shopRoleValue) ;
     }
 
-    @PreAuthorize("hasAnyAuthority('root','manage','group','view')")
+    @PreAuthorize("hasAnyAuthority('root','boss')")
     @DeleteMapping("/remove")
     @ApiOperation(value = "移除商铺规则")
     @ApiImplicitParams({

@@ -20,7 +20,7 @@ public class EmployeeRoleController {
     @Autowired
     private EmployeeRoleServiceImpl employeeRoleService ;
 
-    @PreAuthorize("hasAnyAuthority('root','manage','group','view')")
+    @PreAuthorize("hasAnyAuthority('root','boss','manage','group','view')")
     @PostMapping("/add")
     @ApiOperation(value = "更改员工偏好")
     @ApiImplicitParams({
