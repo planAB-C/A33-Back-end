@@ -2,6 +2,7 @@ package com.fuchuang.A33.service.Impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.fuchuang.A33.DTO.EmployeeDetailsInfomationDTO;
 import com.fuchuang.A33.DTO.WorkingDTO;
 import com.fuchuang.A33.entity.*;
@@ -72,9 +73,10 @@ public class LocationServiceImpl implements ILocationService {
             localDateTime = UsualUtils.parseToMonday(localDateTime) ;
         }
         ArrayList<WorkingDTO> workingDTOList = new ArrayList<>();
-
+        ArrayList<List<WorkingDTO>> list = new ArrayList<>();
         //对本周的值班情况进行查询
         for(int i = 0 ; i < 7 ; i++){
+            //将天数进行转化
             String date = localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
             List<Location> locationList = locationsMapper.selectList(new QueryWrapper<Location>().like("ID",date));
@@ -88,10 +90,12 @@ public class LocationServiceImpl implements ILocationService {
                     workingDTOList.add(workingDTO) ;
                 }
             }
-
+            list.add(workingDTOList) ;
+            workingDTOList = new ArrayList<>();
+            //天数加1
             localDateTime = localDateTime.plusDays(1) ;
         }
-        return Result.success(200, workingDTOList);
+        return Result.success(200, list);
     }
 
     /**
@@ -175,16 +179,55 @@ public class LocationServiceImpl implements ILocationService {
         employeeDetailsInfomationDTO.setID(employee.getID());
         employeeDetailsInfomationDTO.setName(employee.getName());
         //添加员工喜好
-        HashMap<String,String> map = new HashMap<>();
         List<EmployeeRole> employeeRoleList = employeeRoleMapper.selectList
                 (new QueryWrapper<EmployeeRole>().eq("employee_ID", employeeID));
+            //将员工喜好依次加入，对于其中为null的部分，我们手动赋值为空，并在数据表中进行修改
         for (EmployeeRole employeeRole : employeeRoleList) {
-            map.put(employeeRole.getHobbyType(),employeeRole.getHobbyValue()) ;
+            switch (employeeRole.getHobbyType()){
+                case "工作日偏好" : {
+                    if (employeeRole.getHobbyValue().equals("")){
+                        employeeDetailsInfomationDTO.setHobbyValue1("无");
+                        EmployeeRole role = new EmployeeRole();
+                        role.setHobbyValue("无");
+                        employeeRoleMapper.update(role,new UpdateWrapper<EmployeeRole>()
+                                .eq("hobby_type","工作日偏好")
+                                .eq("employee_ID",employeeID)) ;
+                        break;
+                    }
+                    employeeDetailsInfomationDTO.setHobbyValue1(employeeRole.getHobbyValue());
+                    break;
+                }
+
+                case "工作时间偏好" : {
+                    if (employeeRole.getHobbyValue().equals("")){
+                        employeeDetailsInfomationDTO.setHobbyValue2("无");
+                        EmployeeRole role = new EmployeeRole();
+                        role.setHobbyValue("无");
+                        employeeRoleMapper.update(role,new UpdateWrapper<EmployeeRole>()
+                                .eq("hobby_type","工作时间偏好")
+                                .eq("employee_ID",employeeID)) ;
+                        break;
+                    }
+                    employeeDetailsInfomationDTO.setHobbyValue2(employeeRole.getHobbyValue());
+                    break;
+                }
+
+                case "班次时长偏好" : {
+                    if (employeeRole.getHobbyValue().equals("")){
+                        employeeDetailsInfomationDTO.setHobbyValue3("无");
+                        EmployeeRole role = new EmployeeRole();
+                        role.setHobbyValue("无");
+                        employeeRoleMapper.update(role,new UpdateWrapper<EmployeeRole>()
+                                .eq("hobby_type","班次时长偏好")
+                                .eq("employee_ID",employeeID)) ;
+                        break;
+                    }
+                    employeeDetailsInfomationDTO.setHobbyValue3(employeeRole.getHobbyValue());
+                    break;
+                }
+            }
         }
-        if (map.isEmpty()){
-            map.put("null","null") ;
-        }
-        employeeDetailsInfomationDTO.setEmployeeRole(map);
+
         return Result.success(200, employeeDetailsInfomationDTO);
     }
 
@@ -199,6 +242,7 @@ public class LocationServiceImpl implements ILocationService {
         if (locationID.length()!=13) throw new RuntimeException("the input is not right") ;
         //根据员工ID号进行查询，将得到的内容填充到working中
         Employee employee = employeeMapper.selectOne(new QueryWrapper<Employee>().eq("ID", employeeID));
+        if (Objects.isNull(employee)) return Result.fail(500,"employee is not excite");
         Working working = new Working();
         working.setName(employee.getName());
         working.setPosition(employee.getPosition());
@@ -222,16 +266,18 @@ public class LocationServiceImpl implements ILocationService {
             newLocation.setCurrentNumber(1);
             String flowID = locationID.substring(11);
             newLocation.setFlowID(flowID);
+            int rows =  locationsMapper.insert(newLocation) ;
+            if (rows!=1)  return Result.fail(500,"please try it again") ;
         }else{
             newLocation.setID(locationID);
             newLocation.setCurrentNumber(location.getCurrentNumber()+1);
             String flowID = locationID.substring(11);
             newLocation.setFlowID(flowID);
+            int rows = locationsMapper.update(newLocation,new UpdateWrapper<Location>().eq("ID",locationID)) ;
         }
         //插入
         int rows = workingMapper.insert(working) ;
-        rows = rows + locationsMapper.insert(newLocation) ;
-        if (rows!=2)  return Result.fail(500,"please try it again") ;
+        if (rows!=1)  return Result.fail(500,"please try it again") ;
         return Result.success(200);
     }
 
@@ -250,7 +296,4 @@ public class LocationServiceImpl implements ILocationService {
         return null;
     }
 
-    public String getMonday(String date) {
-        return null;
-    }
 }

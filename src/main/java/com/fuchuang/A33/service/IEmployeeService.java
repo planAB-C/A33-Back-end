@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface IEmployeeService {
     Result login(String email);
-
     Result regist(String name, String email, String position, String shopId ,String Belong);
+    Result changeGroup(String groupEmail) ;
 }

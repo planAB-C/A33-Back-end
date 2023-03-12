@@ -7,11 +7,9 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/employee")
@@ -37,12 +35,20 @@ public class EmployeeController {
             @ApiImplicitParam(name = "name", value = "员工姓名" ,dataType= "String") ,
             @ApiImplicitParam(name = "email", value = "员工邮箱" ,dataType= "String") ,
             @ApiImplicitParam(name = "position", value = "员工职位" ,dataType= "String") ,
-            @ApiImplicitParam(name = "shop_ID", value = "员工所属商店的ID号" ,dataType= "String") ,
+            @ApiImplicitParam(name = "shopID", value = "员工所属商店的ID号" ,dataType= "String") ,
             @ApiImplicitParam(name = "belong", value = "员工所属的组长的邮箱" ,dataType= "String")
     })
-    public Result regist(String name , String email ,String position ,String shop_ID ,String belong){
-        return employeeService.regist(name ,email ,position ,shop_ID ,belong) ;
+    public Result regist(String name , String email ,String position ,String shopID ,String belong){
+        return employeeService.regist(name ,email ,position ,shopID ,belong) ;
     }
 
-
+    @PreAuthorize("hasAuthority('view')")
+    @PutMapping("/group")
+    @ApiOperation(value = "更改小组长")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "groupEmail", value = "小组长邮箱" ,dataType= "String") ,
+    })
+    public Result regist(String groupEmail ){
+        return employeeService.changeGroup(groupEmail) ;
+    }
 }

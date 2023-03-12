@@ -10,7 +10,6 @@ public interface ILocationService {
     Result getMondayThisWeek() ;
     Result showAllLocationsByWeek(String dateTimeDay);
     Result showAllLocationsByDay(String dateTimeDay);
-    //分组展示，个人理解为按照职位展示
     Result showAllGroup () ;
     Result showAllLocationsByGroup(Integer groupID);
     Result showEmployeeDetails(String employeeID) ;

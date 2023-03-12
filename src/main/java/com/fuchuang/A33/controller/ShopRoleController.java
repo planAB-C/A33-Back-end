@@ -16,21 +16,46 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/shopRole")
-@Api(tags = "商铺规则")
+@Api(tags = "商铺及商铺规则")
 public class ShopRoleController {
     @Autowired
     private ShopRoleServiceImpl shopRoleService ;
 
+    @PreAuthorize("hasAnyAuthority('root')")
+    @PostMapping("/addShop")
+    @ApiOperation(value = "添加商铺")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "name", value = "商铺名" ,dataType= "String") ,
+            @ApiImplicitParam(name = "address", value = "商铺地址" ,dataType= "String") ,
+            @ApiImplicitParam(name = "size" , value = "商铺面积" , dataType = "double") ,
+    })
+    public Result addShop(String name , String address , double size){
+        return shopRoleService.addShop(name, address, size) ;
+    }
+
+
     @PreAuthorize("hasAnyAuthority('root','manage','group','view')")
-    @PostMapping("/add")
-    @ApiOperation(value = "添加或修改商铺规则")
+    @PostMapping("/addRole")
+    @ApiOperation(value = "添加商铺规则")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "shopID", value = "商铺ID" ,dataType= "String"),
             @ApiImplicitParam(name = "shopRoleType", value = "商铺规则类型" ,dataType= "String"),
             @ApiImplicitParam(name = "shopRoleValue", value = "商铺规则值" ,dataType= "String")
     })
-    public Result addOrUpdateShopRoleService(String shopID , String shopRoleType , String shopRoleValue){
-        return shopRoleService.addOrUpdateShopRoleService(shopID, shopRoleType, shopRoleValue) ;
+    public Result addShopRoleService(String shopID , String shopRoleType , String shopRoleValue){
+        return shopRoleService.addShopRoleService(shopID, shopRoleType, shopRoleValue) ;
+    }
+
+    @PreAuthorize("hasAnyAuthority('root','manage','group','view')")
+    @PostMapping("/updateRole")
+    @ApiOperation(value = "修改商铺规则")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "shopID", value = "商铺ID" ,dataType= "String"),
+            @ApiImplicitParam(name = "shopRoleType", value = "商铺规则类型" ,dataType= "String"),
+            @ApiImplicitParam(name = "shopRoleValue", value = "商铺规则值" ,dataType= "String")
+    })
+    public Result updateShopRoleService(String shopID , String shopRoleType , String shopRoleValue){
+        return shopRoleService.UpdateShopRoleService(shopID, shopRoleType, shopRoleValue) ;
     }
 
     @PreAuthorize("hasAnyAuthority('root','manage','group','view')")
