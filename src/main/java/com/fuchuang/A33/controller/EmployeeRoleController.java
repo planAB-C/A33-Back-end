@@ -22,24 +22,24 @@ public class EmployeeRoleController {
 
     @PreAuthorize("hasAnyAuthority('root','manage','group','view')")
     @PostMapping("/add")
-    @ApiOperation(value = "添加员工偏好")
+    @ApiOperation(value = "更改员工偏好")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "employeeID", value = "员工ID" ,dataType= "String"),
-            @ApiImplicitParam(name = "hobbyType", value = "员工偏好" ,dataType= "String"),
-            @ApiImplicitParam(name = "hobbyValue", value = "员工偏好值" ,dataType= "String")
+            @ApiImplicitParam(name = "hobbyType1", value = "员工偏好1" ,dataType= "String"),
+            @ApiImplicitParam(name = "hobbyValue1", value = "员工偏好值1" ,dataType= "String"),
+
+            @ApiImplicitParam(name = "employeeID", value = "员工ID" ,dataType= "String"),
+            @ApiImplicitParam(name = "hobbyType2", value = "员工偏好2" ,dataType= "String"),
+            @ApiImplicitParam(name = "hobbyValue2", value = "员工偏好值2" ,dataType= "String"),
+
+            @ApiImplicitParam(name = "employeeID", value = "员工ID" ,dataType= "String"),
+            @ApiImplicitParam(name = "hobbyType3", value = "员工偏好3" ,dataType= "String"),
+            @ApiImplicitParam(name = "hobbyValue3", value = "员工偏好值3" ,dataType= "String")
     })
-    public Result addOrUpdateEmployeeRole(String employeeID, String hobbyType, String hobbyValue){
-        return employeeRoleService.addOrUpdateEmployeeRole(employeeID,hobbyType,hobbyValue) ;
+    public Result UpdateEmployeeRole(String employeeID, String hobbyType1, String hobbyValue1 ,String hobbyType2, String hobbyValue2 ,
+                                          String hobbyType3, String hobbyValue3){
+        return employeeRoleService.UpdateEmployeeRole(employeeID, hobbyType1, hobbyValue1 , hobbyType2,hobbyValue2 ,
+                 hobbyType3,  hobbyValue3) ;
     }
 
-    @PreAuthorize("hasAnyAuthority('root','manage','group','view')")
-    @DeleteMapping("/remove")
-    @ApiOperation(value = "移除员工偏好")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "employeeID", value = "员工ID" ,dataType= "String"),
-            @ApiImplicitParam(name = "hobbyType", value = "员工偏好" ,dataType= "String")
-    })
-    public Result removeEmployeeRole(String employeeID ,String hobbyType){
-        return employeeRoleService.removeEmployeeRole(employeeID ,hobbyType) ;
-    }
 }

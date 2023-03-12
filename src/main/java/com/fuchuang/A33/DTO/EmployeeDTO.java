@@ -17,4 +17,5 @@ public class EmployeeDTO {
     private String  shopID ;
     @TableField(exist = false)
     private List<String> permissions ;
+    private String ID ;
 }

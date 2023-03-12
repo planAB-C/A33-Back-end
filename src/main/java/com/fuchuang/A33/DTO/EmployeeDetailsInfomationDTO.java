@@ -16,5 +16,10 @@ public class EmployeeDetailsInfomationDTO {
     private String position ;
     private String shopName ;
     private String groupName ;
-    private HashMap<String,String> employeeRole ;
+    private final String hobbyType1 = "喜欢的工作日" ;
+    private String hobbyValue1 = "无" ;
+    private final String hobbyType2 = "喜欢的工作时间" ;
+    private String hobbyValue2 = "无" ;
+    private final String hobbyType3 = "一次性工作的最长时间" ;
+    private String hobbyValue3 = "无" ;
 }

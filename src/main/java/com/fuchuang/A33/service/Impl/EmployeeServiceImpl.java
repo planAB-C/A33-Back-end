@@ -4,12 +4,16 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.lang.UUID;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.fuchuang.A33.DTO.EmployeeDTO;
 import com.fuchuang.A33.entity.Employee;
+import com.fuchuang.A33.entity.EmployeeRole;
 import com.fuchuang.A33.entity.LoginEmployee;
 import com.fuchuang.A33.mapper.EmployeeMapper;
+import com.fuchuang.A33.mapper.EmployeeRoleMapper;
 import com.fuchuang.A33.service.IEmployeeService;
 import com.fuchuang.A33.utils.Constants;
+import com.fuchuang.A33.utils.EmployeeHolder;
 import com.fuchuang.A33.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -32,6 +36,9 @@ public class EmployeeServiceImpl implements IEmployeeService {
 
     @Autowired
     private AuthenticationManager authenticationManager ;
+
+    @Autowired
+    private EmployeeRoleMapper employeeRoleMapper ;
 
     @Override
     public Result login(String email) {
@@ -74,11 +81,54 @@ public class EmployeeServiceImpl implements IEmployeeService {
         String ID = null ;
         if(count<10) ID = "0" + count ;
         else ID = count.toString() ;
-        Employee group = employeeMapper.selectOne(new QueryWrapper<Employee>().eq("email", belong));
-        int rows = employeeMapper.insert(new Employee(ID, name, email, position, shopId ,group.getID() ));
-        if (rows==0){
-            return Result.fail(500,"the system has some problems now") ;
+        //如果belong为空，表明没有小组长
+        if (belong == null) {
+            if(employeeMapper.insert(new Employee(ID, name, email, position, shopId , null ))==0){
+                return Result.fail(500,"the system has some wrongs now") ;
+            }
         }
+
+        //如果belong不为空，查询并插入
+        else {
+            Employee group = employeeMapper.selectOne(new QueryWrapper<Employee>().eq("email", belong));
+            if(employeeMapper.insert(new Employee(ID, name, email, position, shopId , group.getID() ))==0){
+                return Result.fail(500,"the system has some wrongs now") ;
+            }
+        }
+
+        //添加默认的员工规则
+        EmployeeRole employeeRole = new EmployeeRole();
+        employeeRole.setEmployeeID(ID);
+        employeeRole.setHobbyType("喜欢的工作日") ;
+        employeeRole.setHobbyType("无");
+        employeeRoleMapper.insert(employeeRole) ;
+        employeeRole.setEmployeeID(ID);
+        employeeRole.setHobbyType("工作时间偏好") ;
+        employeeRole.setHobbyType("无");
+        employeeRoleMapper.insert(employeeRole) ;
+        employeeRole.setEmployeeID(ID);
+        employeeRole.setHobbyType("班次时长偏好") ;
+        employeeRole.setHobbyType("无");
+        employeeRoleMapper.insert(employeeRole) ;
         return Result.success(200) ;
     }
+
+    @Override
+    public Result changeGroup(String groupEmail) {
+        Employee group = employeeMapper.selectOne(new QueryWrapper<Employee>().eq("email", groupEmail));
+        if (group==null){
+            return Result.fail(500,"the system has some wrongs now") ;
+        }
+        if (group.getPosition().equals("小组长")){
+            return Result.fail(500,"the email's owner is not '小组长' ") ;
+        }
+        EmployeeDTO employeeDTO = EmployeeHolder.getEmloyee();
+        Employee em = new Employee();
+        em.setID(employeeDTO.getID());
+        em.setBelong(group.getID());
+        employeeMapper.update(em,new QueryWrapper<Employee>().eq("ID",em.getID()));
+        return Result.success(200) ;
+    }
+
+
 }
