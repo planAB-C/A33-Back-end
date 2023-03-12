@@ -4,12 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.HashMap;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class EmployeeDetailsInfomationDTO {
+public class EmployeeDetailsInformationDTO {
     private String ID ;
     private String name ;
     private String email ;

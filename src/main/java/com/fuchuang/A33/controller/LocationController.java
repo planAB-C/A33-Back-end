@@ -6,13 +6,11 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 @RestController
 @RequestMapping("/location")
@@ -22,14 +20,13 @@ public class LocationController {
     @Autowired
     private LocationServiceImpl locationService ;
 
-    @PreAuthorize("hasAnyAuthority('root','manage','group','view')")
     @GetMapping("/monday")
     @ApiOperation(value = "获取本周星期一的日期")
     public Result getMondayThisWeek(){
         return locationService.getMondayThisWeek() ;
     }
 
-    @PreAuthorize("hasAnyAuthority('root','manage','group')")
+    @PreAuthorize("hasAnyAuthority('root','boss','manage','group')")
     @GetMapping("/week")
     @ApiOperation(value = "按周展示员工的工作安排")
     @ApiImplicitParams({
@@ -39,7 +36,7 @@ public class LocationController {
         return locationService.showAllLocationsByWeek(dateTimeWeek) ;
     }
 
-    @PreAuthorize("hasAnyAuthority('root','manage','group')")
+    @PreAuthorize("hasAnyAuthority('root','boss','manage','group')")
     @GetMapping("/day")
     @ApiOperation(value = "按日展示员工的工作安排")
     @ApiImplicitParams({
@@ -49,14 +46,14 @@ public class LocationController {
         return locationService.showAllLocationsByDay(dateTimeDay) ;
     }
 
-    @PreAuthorize("hasAnyAuthority('root','manage')")
+    @PreAuthorize("hasAnyAuthority('root','boss','manage')")
     @GetMapping("/allGroup")
     @ApiOperation(value = "展示所有的小组")
     public Result showAllGroup(){
         return locationService.showAllGroup() ;
     }
 
-    @PreAuthorize("hasAnyAuthority('root','manage','group')")
+    @PreAuthorize("hasAnyAuthority('root','boss','manage','group')")
     @GetMapping("/group")
     @ApiOperation(value = "按组展示员工的工作安排")
     @ApiImplicitParams({
@@ -66,7 +63,7 @@ public class LocationController {
         return locationService.showAllLocationsByGroup(groupID) ;
     }
 
-    @PreAuthorize("hasAnyAuthority('root','manage','group')")
+    @PreAuthorize("hasAnyAuthority('root','boss','manage','group')")
     @GetMapping("/details")
     @ApiOperation(value = "展示员工信息的具体细节")
     @ApiImplicitParams({
@@ -76,7 +73,7 @@ public class LocationController {
         return locationService.showEmployeeDetails(employeeID) ;
     }
 
-    @PreAuthorize("hasAnyAuthority('root','manage')")
+    @PreAuthorize("hasAnyAuthority('root','boss','manage')")
     @PutMapping("/manage")
     @ApiOperation(value = "手动安排员工")
     @ApiImplicitParams({
@@ -87,19 +84,19 @@ public class LocationController {
         return locationService.manageEmployeeLocationsByHand( locationID, employeeID) ;
     }
 
-    @PreAuthorize("hasAnyAuthority('root','manage')")
+    @PreAuthorize("hasAnyAuthority('root','boss','manage')")
     @DeleteMapping("/remove")
     public Result removeLocationsByHand(LocalDateTime dateTimeWeek , String LocationID , String employeeID){
         return Result.success(200) ;
     }
 
-    @PreAuthorize("hasAnyAuthority('root','manage','group')")
+    @PreAuthorize("hasAnyAuthority('root','boss','manage','group')")
     @GetMapping("/name")
     public Result selectLocationByName(LocalDateTime dateTimeWeek , String LocationID , String employeeID){
         return Result.success(200) ;
     }
 
-    @PreAuthorize("hasAnyAuthority('root','manage','group')")
+    @PreAuthorize("hasAnyAuthority('root','boss','manage','group')")
     @GetMapping("/freeEmployees")
     public Result showFreeEmployees(LocalDateTime dateTimeWeek , String LocationID , String employeeID){
         return Result.success(200) ;

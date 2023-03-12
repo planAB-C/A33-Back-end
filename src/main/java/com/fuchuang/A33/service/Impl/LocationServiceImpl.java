@@ -3,7 +3,7 @@ package com.fuchuang.A33.service.Impl;
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.fuchuang.A33.DTO.EmployeeDetailsInfomationDTO;
+import com.fuchuang.A33.DTO.EmployeeDetailsInformationDTO;
 import com.fuchuang.A33.DTO.WorkingDTO;
 import com.fuchuang.A33.entity.*;
 import com.fuchuang.A33.mapper.*;
@@ -15,10 +15,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -163,21 +161,21 @@ public class LocationServiceImpl implements ILocationService {
             throw new RuntimeException("the employee is not excite now , please sure it now") ;
         }
         //对需要返回的具体员工信息封装到EmployeeDetails类中
-        EmployeeDetailsInfomationDTO employeeDetailsInfomationDTO = new EmployeeDetailsInfomationDTO();
-        employeeDetailsInfomationDTO.setEmail(employee.getEmail());
+        EmployeeDetailsInformationDTO employeeDetailsInformationDTO = new EmployeeDetailsInformationDTO();
+        employeeDetailsInformationDTO.setEmail(employee.getEmail());
         Employee group = employeeMapper.selectOne(new QueryWrapper<Employee>().eq("ID", employee.getID()));
 
-        if (Objects.isNull(group))  employeeDetailsInfomationDTO.setGroupName("无");
-        else employeeDetailsInfomationDTO.setGroupName(group.getName());
+        if (Objects.isNull(group))  employeeDetailsInformationDTO.setGroupName("无");
+        else employeeDetailsInformationDTO.setGroupName(group.getName());
 
-        employeeDetailsInfomationDTO.setPosition(employee.getPosition());
+        employeeDetailsInformationDTO.setPosition(employee.getPosition());
         Shop shop = shopMapper.selectOne(new QueryWrapper<Shop>().eq("ID", employee.getShopID()));
 
         if (Objects.isNull(shop)) throw new RuntimeException("System has some wrongs now") ;
-        else employeeDetailsInfomationDTO.setShopName(shop.getName());
+        else employeeDetailsInformationDTO.setShopName(shop.getName());
 
-        employeeDetailsInfomationDTO.setID(employee.getID());
-        employeeDetailsInfomationDTO.setName(employee.getName());
+        employeeDetailsInformationDTO.setID(employee.getID());
+        employeeDetailsInformationDTO.setName(employee.getName());
         //添加员工喜好
         List<EmployeeRole> employeeRoleList = employeeRoleMapper.selectList
                 (new QueryWrapper<EmployeeRole>().eq("employee_ID", employeeID));
@@ -186,7 +184,7 @@ public class LocationServiceImpl implements ILocationService {
             switch (employeeRole.getHobbyType()){
                 case "工作日偏好" : {
                     if (employeeRole.getHobbyValue().equals("")){
-                        employeeDetailsInfomationDTO.setHobbyValue1("无");
+                        employeeDetailsInformationDTO.setHobbyValue1("无");
                         EmployeeRole role = new EmployeeRole();
                         role.setHobbyValue("无");
                         employeeRoleMapper.update(role,new UpdateWrapper<EmployeeRole>()
@@ -194,13 +192,13 @@ public class LocationServiceImpl implements ILocationService {
                                 .eq("employee_ID",employeeID)) ;
                         break;
                     }
-                    employeeDetailsInfomationDTO.setHobbyValue1(employeeRole.getHobbyValue());
+                    employeeDetailsInformationDTO.setHobbyValue1(employeeRole.getHobbyValue());
                     break;
                 }
 
                 case "工作时间偏好" : {
                     if (employeeRole.getHobbyValue().equals("")){
-                        employeeDetailsInfomationDTO.setHobbyValue2("无");
+                        employeeDetailsInformationDTO.setHobbyValue2("无");
                         EmployeeRole role = new EmployeeRole();
                         role.setHobbyValue("无");
                         employeeRoleMapper.update(role,new UpdateWrapper<EmployeeRole>()
@@ -208,13 +206,13 @@ public class LocationServiceImpl implements ILocationService {
                                 .eq("employee_ID",employeeID)) ;
                         break;
                     }
-                    employeeDetailsInfomationDTO.setHobbyValue2(employeeRole.getHobbyValue());
+                    employeeDetailsInformationDTO.setHobbyValue2(employeeRole.getHobbyValue());
                     break;
                 }
 
                 case "班次时长偏好" : {
                     if (employeeRole.getHobbyValue().equals("")){
-                        employeeDetailsInfomationDTO.setHobbyValue3("无");
+                        employeeDetailsInformationDTO.setHobbyValue3("无");
                         EmployeeRole role = new EmployeeRole();
                         role.setHobbyValue("无");
                         employeeRoleMapper.update(role,new UpdateWrapper<EmployeeRole>()
@@ -222,13 +220,13 @@ public class LocationServiceImpl implements ILocationService {
                                 .eq("employee_ID",employeeID)) ;
                         break;
                     }
-                    employeeDetailsInfomationDTO.setHobbyValue3(employeeRole.getHobbyValue());
+                    employeeDetailsInformationDTO.setHobbyValue3(employeeRole.getHobbyValue());
                     break;
                 }
             }
         }
 
-        return Result.success(200, employeeDetailsInfomationDTO);
+        return Result.success(200, employeeDetailsInformationDTO);
     }
 
     /**

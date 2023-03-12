@@ -1,9 +1,11 @@
 package com.fuchuang.A33.service.Impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.fuchuang.A33.entity.Employee;
 import com.fuchuang.A33.entity.EmployeeRole;
 import com.fuchuang.A33.entity.Shop;
 import com.fuchuang.A33.entity.ShopRole;
+import com.fuchuang.A33.mapper.EmployeeMapper;
 import com.fuchuang.A33.mapper.ShopMapper;
 import com.fuchuang.A33.mapper.ShopRoleMapper;
 import com.fuchuang.A33.service.IShopRoleService;
@@ -17,6 +19,9 @@ import java.util.Objects;
 public class ShopRoleServiceImpl implements IShopRoleService {
     @Autowired
     private ShopRoleMapper shopRoleMapper ;
+
+    @Autowired
+    private EmployeeMapper employeeMapper ;
 
     @Autowired
     private ShopMapper shopMapper ;
@@ -58,7 +63,9 @@ public class ShopRoleServiceImpl implements IShopRoleService {
     @Override
     public Result addShop(String name, String address, double size) {
         Long count = shopMapper.selectCount(new QueryWrapper<Shop>());
-        String ID = count + 1 + "" ;
+        String ID = null ;
+        if (count<=8) ID = "0" + (count + 1) + "" ;
+        else ID = count + 1 + "" ;
         shopMapper.insert(new Shop(ID,name,address,size)) ;
         return Result.success(200);
     }
