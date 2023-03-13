@@ -1,24 +1,32 @@
 package com.fuchuang.A33.service.Impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.io.resource.StringResource;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.fuchuang.A33.DTO.EmployeeDetailsInformationDTO;
+import com.fuchuang.A33.DTO.WeeksDTO;
 import com.fuchuang.A33.DTO.WorkingDTO;
 import com.fuchuang.A33.entity.*;
 import com.fuchuang.A33.mapper.*;
 import com.fuchuang.A33.service.ILocationService;
+import com.fuchuang.A33.utils.Constants;
 import com.fuchuang.A33.utils.Result;
-import com.fuchuang.A33.utils.UsualUtils;
+import com.fuchuang.A33.utils.LocalDateTimeUtils;
+import com.fuchuang.A33.utils.ResultWithToken;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.sql.Time;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import static com.fuchuang.A33.utils.Constants.GET_TOKEN;
 
 @Service
 public class LocationServiceImpl implements ILocationService {
@@ -38,6 +46,47 @@ public class LocationServiceImpl implements ILocationService {
     @Autowired
     private EmployeeRoleMapper employeeRoleMapper ;
 
+    @Autowired
+    private TimesMapper timesMapper ;
+
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate ;
+
+    /**
+     * 返回以本周为基准的前后各一个周
+     * @param dateTimeWeek
+     * @return
+     */
+    @Override
+    public Result getThreeWeeks(String dateTimeWeek) {
+        ArrayList<WeeksDTO> weeksDTOList = new ArrayList<>();
+
+        LocalDateTime localDateTime = LocalDateTimeUtils.StringToChineseLocalDateTime(dateTimeWeek);
+        LocalDateTime thisWeek = LocalDateTimeUtils.parseToMonday(localDateTime);
+        LocalDateTime lastWeek = thisWeek.minusWeeks(1) ;
+        LocalDateTime nextWeek = thisWeek.plusWeeks(1);
+
+        String lastWeek1 = lastWeek.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        String thisWeek1 = thisWeek.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        String nextWeek1 = nextWeek.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        WeeksDTO week1 = new WeeksDTO("上周",
+                lastWeek1, String.valueOf(lastWeek.getDayOfMonth()),
+                String.valueOf(thisWeek.minusDays(1).getDayOfMonth()));
+
+        WeeksDTO week2 = new WeeksDTO("本周",
+                thisWeek1, String.valueOf(thisWeek.getDayOfMonth()),
+                String.valueOf(nextWeek.minusDays(1).getDayOfMonth()));
+
+
+        WeeksDTO week3 = new WeeksDTO("下周",
+                nextWeek1, String.valueOf(nextWeek.getDayOfMonth()),
+                String.valueOf(nextWeek.plusWeeks(1).minusDays(1).getDayOfMonth()));
+
+        weeksDTOList.add(week1) ;
+        weeksDTOList.add(week2) ;
+        weeksDTOList.add(week3) ;
+        return Result.success(200,weeksDTOList);
+    }
 
     /**
      * 得到本周的星期一的日期
@@ -64,11 +113,11 @@ public class LocationServiceImpl implements ILocationService {
     public Result showAllLocationsByWeek(String dateTimeWeek) {
 //        String dateTime = getMonday(dateTimeWeek) ;
         //对字符串进行解析
-        LocalDateTime localDateTime =UsualUtils.StringToChineseLocalDateTime(dateTimeWeek) ;
+        LocalDateTime localDateTime = LocalDateTimeUtils.StringToChineseLocalDateTime(dateTimeWeek) ;
 
         //判断是否是星期一
         if (localDateTime.getDayOfWeek()!=DayOfWeek.MONDAY){
-            localDateTime = UsualUtils.parseToMonday(localDateTime) ;
+            localDateTime = LocalDateTimeUtils.parseToMonday(localDateTime) ;
         }
         ArrayList<WorkingDTO> workingDTOList = new ArrayList<>();
         ArrayList<List<WorkingDTO>> list = new ArrayList<>();
@@ -155,10 +204,11 @@ public class LocationServiceImpl implements ILocationService {
      * @return
      */
     @Override
-    public Result showEmployeeDetails(String employeeID) {
+    public ResultWithToken showEmployeeDetails(String employeeID) {
         Employee employee = employeeMapper.selectOne(new QueryWrapper<Employee>().eq("ID", employeeID));
+        if (employee.getPosition()=="root") return ResultWithToken.fail(500,"can not search user named 'root' ") ;
         if (employee==null){
-            throw new RuntimeException("the employee is not excite now , please sure it now") ;
+            return ResultWithToken.fail(500,"the employee is not excite now , please sure it now") ;
         }
         //对需要返回的具体员工信息封装到EmployeeDetails类中
         EmployeeDetailsInformationDTO employeeDetailsInformationDTO = new EmployeeDetailsInformationDTO();
@@ -171,7 +221,7 @@ public class LocationServiceImpl implements ILocationService {
         employeeDetailsInformationDTO.setPosition(employee.getPosition());
         Shop shop = shopMapper.selectOne(new QueryWrapper<Shop>().eq("ID", employee.getShopID()));
 
-        if (Objects.isNull(shop)) throw new RuntimeException("System has some wrongs now") ;
+        if (Objects.isNull(shop)) employeeDetailsInformationDTO.setShopName("无") ;
         else employeeDetailsInformationDTO.setShopName(shop.getName());
 
         employeeDetailsInformationDTO.setID(employee.getID());
@@ -225,10 +275,12 @@ public class LocationServiceImpl implements ILocationService {
                 }
             }
         }
-
-        return Result.success(200, employeeDetailsInformationDTO);
+        String token = stringRedisTemplate.opsForValue().get(GET_TOKEN + employee.getID());
+        return ResultWithToken.success(200, employeeDetailsInformationDTO,token);
     }
 
+    //TODO 添加员工的工作时长
+    //TODO 提供多选
     /**
      * 手动安排员工班次
      * @param locationID
@@ -279,19 +331,98 @@ public class LocationServiceImpl implements ILocationService {
         return Result.success(200);
     }
 
+    //TODO 减少员工的工作时长
+    //TODO 提供多选
+    /**
+     * 手动移除班次
+     * @param locationID
+     * @param employeeID
+     * @return
+     */
     @Override
-    public Result removeLocationsByHand(LocalDateTime dateTimeWeek, String locationID, String employeeID) {
-        return null;
+    public Result removeLocationsByHand (String locationID , String employeeID ) {
+        int rows = locationsMapper.delete(new QueryWrapper<Location>().eq("location_ID", locationID));
+        if (rows==0){
+            return Result.fail(500,"the system has some wrongs" );
+        }
+        rows = timesMapper.update(new Times(), new UpdateWrapper<Times>()
+                .eq("employee", employeeID)
+                .setSql("time_sum - 30"));
+        if (rows==0){
+            return Result.fail(500,"the system has some wrongs") ;
+        }
+        return Result.success(200);
     }
 
+    /**
+     * 通过姓名展示用户
+     * @param name
+     * @return
+     */
     @Override
-    public Result selectLocationByName(LocalDateTime dateTimeWeek, String locationID, String employeeID) {
-        return null;
+    public Result showEmployeeByName(String name) {
+        List<Employee> employeeList = employeeMapper.selectList(new QueryWrapper<Employee>().eq("name", name));
+        return Result.success(200,employeeList);
     }
 
+    /**
+     * 通过email展示位次信息，与前面的showEmployeeByName搭配使用
+     * @param email
+     * @return
+     */
     @Override
-    public Result showFreeEmployees(LocalDateTime dateTimeWeek) {
-        return null;
+    public Result showEmployeeLocationsByEmail(String dateTime , String email) {
+        LocalDateTime localDateTime = LocalDateTimeUtils.StringToChineseLocalDateTime(dateTime) ;
+        Employee employee = employeeMapper.selectOne(new QueryWrapper<Employee>().eq("email", email));
+        //判断是否是星期一
+        if (localDateTime.getDayOfWeek()!=DayOfWeek.MONDAY){
+            localDateTime = LocalDateTimeUtils.parseToMonday(localDateTime) ;
+        }
+        ArrayList<WorkingDTO> workingDTOList = new ArrayList<>();
+        ArrayList<List<WorkingDTO>> list = new ArrayList<>();
+        //对本周的值班情况进行查询
+        for(int i = 0 ; i < 7 ; i++){
+            //将天数进行转化
+            String date = localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+
+            List<Location> locationList = locationsMapper.selectList(new QueryWrapper<Location>().like("ID",date));
+            for (Location location : locationList) {
+                List<Working> workingList = workingMapper.selectList(
+                        new QueryWrapper<Working>()
+                                .eq("location_ID", location.getID())
+                                .eq("employee_ID", employee.getID()));
+                for (Working working : workingList) {
+                    WorkingDTO workingDTO = new WorkingDTO();
+                    //将结果转换成locationDTO对象
+                    BeanUtil.copyProperties(working, workingDTO);
+                    workingDTO.setLocationRealID(location.getID().substring(11));
+                    workingDTOList.add(workingDTO) ;
+                }
+            }
+            list.add(workingDTOList) ;
+            workingDTOList = new ArrayList<>();
+            //天数加1
+            localDateTime = localDateTime.plusDays(1) ;
+        }
+        return Result.success(200,list);
+    }
+
+    /**
+     * 当员工的工作时长没有到达要求的时候就会进行展示（root用户不能访问）
+     * @return
+     */
+    @Override
+    public Result showFreeEmployees() {
+        Employee em = new Employee();
+        List<Employee> employeeList = employeeMapper.selectList(new QueryWrapper<Employee>()
+                .eq("shop_ID", em.getShopID()));
+        for (Employee employee : employeeList) {
+            Times times = timesMapper.selectOne(new QueryWrapper<Times>().eq("employee_ID", employee.getID()));
+            if ( times.getPermitTime() - times.getTimeSum() <= Constants.MIN_WORKINGTIME ){
+                employeeList.remove(employee) ;
+            }
+        }
+        return Result.success(200,employeeList);
     }
 
 }

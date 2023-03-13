@@ -4,10 +4,8 @@ import com.fuchuang.A33.service.Impl.EmployeeServiceImpl;
 import com.fuchuang.A33.service.Impl.LocationServiceImpl;
 import com.fuchuang.A33.utils.EmployeeHolder;
 import com.fuchuang.A33.utils.Result;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
+import com.fuchuang.A33.utils.ResultWithToken;
+import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -26,7 +24,7 @@ public class EmployeeController {
     private EmployeeServiceImpl employeeService ;
 
     @GetMapping("/login")
-    @ApiOperation(value = "登陆（返回值是token，前端需要将token设置为全局变量，每次访问时请求头都需要携带token）")
+    @ApiOperation(value = "登陆（返回值是token，前端需要将token设置为全局变量，每次访问时请求头都需要携带token）" ,position = 1)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "email", value = "员工邮箱" ,dataType= "String")
     })
@@ -49,9 +47,9 @@ public class EmployeeController {
 
     @PreAuthorize("hasAuthority('view')")
     @PutMapping("/group")
-    @ApiOperation(value = "更改小组长")
+    @ApiOperation(value = "更改小组长" ,position = 2)
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "groupEmail", value = "小组长邮箱" ,dataType= "String") ,
+            @ApiImplicitParam(name = "groupEmail", value = "小组长邮箱" ,dataType= "String" ) ,
     })
     public Result regist(String groupEmail ){
         return employeeService.changeGroup(groupEmail) ;
@@ -59,14 +57,14 @@ public class EmployeeController {
 
     @PreAuthorize("hasAnyAuthority('root','boss','manage','group','view')")
     @GetMapping("/own")
-    @ApiOperation(value = "展示个人信息")
-    public Result showOwnImformation(){
+    @ApiOperation(value = "展示个人信息" , position = 3)
+    public ResultWithToken showOwnImformation(){
         return locationService.showEmployeeDetails(EmployeeHolder.getEmloyee().getID()) ;
     }
 
     @PreAuthorize("hasAnyAuthority('root','boss','manage','group','view')")
     @PutMapping("/updateOwn")
-    @ApiOperation(value = "修改个人信息")
+    @ApiOperation(value = "修改个人信息" , position = 4)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "email", value = "员工邮箱" ,dataType= "String") ,
             @ApiImplicitParam(name = "position", value = "员工职位" ,dataType= "String") ,
@@ -77,14 +75,14 @@ public class EmployeeController {
 
     @PreAuthorize("hasAnyAuthority('boss','manage','group','view')")
     @GetMapping("/other")
-    @ApiOperation(value = "(非root用户使用)展示本店铺其他人的信息")
+    @ApiOperation(value = "(非root用户使用)展示本店铺其他人的信息" , position = 5)
     public Result showOtherImformation(){
         return employeeService.showOtherImformation() ;
     }
 
     @PreAuthorize("hasAnyAuthority('root')")
     @GetMapping("/rootForAll")
-    @ApiOperation(value = "root展示店铺所有人的信息")
+    @ApiOperation(value = "root展示店铺所有人的信息" , position = 6)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "shopID", value = "店铺ID" ,dataType= "String") ,
     })
@@ -94,7 +92,7 @@ public class EmployeeController {
 
     @PreAuthorize("hasAnyAuthority('root','boss')")
     @PutMapping("/updateOther")
-    @ApiOperation(value = "高权限用户(root,boss)修改员工信息")
+    @ApiOperation(value = "高权限用户(root,boss)修改员工信息" , position = 7)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "ID", value = "员工ID，前端选中后传入" ,dataType= "String") ,
             @ApiImplicitParam(name = "email", value = "员工邮箱" ,dataType= "String") ,
@@ -107,8 +105,9 @@ public class EmployeeController {
 
     @PreAuthorize("hasAnyAuthority('root')")
     @GetMapping("/allShop")
-    @ApiOperation(value = "展示所有店铺（root用户专用页面）")
+    @ApiOperation(value = "展示所有店铺（root用户专用页面）" )
     public Result showAllShop(){
         return employeeService.showAllShop() ;
     }
+
 }

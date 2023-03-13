@@ -4,7 +4,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
-public class UsualUtils {
+public class LocalDateTimeUtils {
 
     public static LocalDateTime StringToChineseLocalDateTime(String date){
         return LocalDateTime.of(Integer.parseInt(date.substring(0, 4)),

@@ -5,6 +5,7 @@ import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.lang.UUID;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.fuchuang.A33.DTO.EmployeeAndTokenDTO;
 import com.fuchuang.A33.DTO.EmployeeDTO;
 import com.fuchuang.A33.DTO.EmployeeDetailsInformationDTO;
 import com.fuchuang.A33.DTO.EmployeeInformationDTO;
@@ -30,6 +31,8 @@ import java.lang.reflect.Array;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import static com.fuchuang.A33.utils.Constants.GET_TOKEN;
 
 @Service
 public class EmployeeServiceImpl implements IEmployeeService {
@@ -77,9 +80,14 @@ public class EmployeeServiceImpl implements IEmployeeService {
                 }));
         stringRedisTemplate.opsForHash().putAll(Constants.EMPLOYEE_TOKEN + token,map);
         stringRedisTemplate.expire(Constants.EMPLOYEE_TOKEN + token,60*30, TimeUnit.SECONDS) ;
-        return Result.success(200,token);
+        EmployeeAndTokenDTO employeeAndTokenDTO = new EmployeeAndTokenDTO();
+        BeanUtil.copyProperties(employee , employeeAndTokenDTO);
+        employeeAndTokenDTO.setToken(token);
+        stringRedisTemplate.opsForValue().set(GET_TOKEN + employee.getID() , token);
+        return Result.success(200,employeeAndTokenDTO);
     }
 
+    //TODO 注册之后创建一条值班记录
     @Override
     public Result regist(String name, String email, String position, String shopId ,String belong) {
         Employee employee = employeeMapper.selectOne(new QueryWrapper<Employee>().eq("email", email));
