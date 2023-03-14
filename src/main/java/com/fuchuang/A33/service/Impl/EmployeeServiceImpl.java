@@ -9,13 +9,11 @@ import com.fuchuang.A33.DTO.EmployeeAndTokenDTO;
 import com.fuchuang.A33.DTO.EmployeeDTO;
 import com.fuchuang.A33.DTO.EmployeeDetailsInformationDTO;
 import com.fuchuang.A33.DTO.EmployeeInformationDTO;
-import com.fuchuang.A33.entity.Employee;
-import com.fuchuang.A33.entity.EmployeeRole;
-import com.fuchuang.A33.entity.LoginEmployee;
-import com.fuchuang.A33.entity.Shop;
+import com.fuchuang.A33.entity.*;
 import com.fuchuang.A33.mapper.EmployeeMapper;
 import com.fuchuang.A33.mapper.EmployeeRoleMapper;
 import com.fuchuang.A33.mapper.ShopMapper;
+import com.fuchuang.A33.mapper.TimesMapper;
 import com.fuchuang.A33.service.IEmployeeService;
 import com.fuchuang.A33.utils.Constants;
 import com.fuchuang.A33.utils.EmployeeHolder;
@@ -52,6 +50,9 @@ public class EmployeeServiceImpl implements IEmployeeService {
     @Autowired
     private ShopMapper shopMapper ;
 
+    @Autowired
+    private TimesMapper timesMapper ;
+
     @Override
     public Result login(String email) {
         Employee employee = employeeMapper.selectOne(new QueryWrapper<Employee>().eq("email", email));
@@ -87,7 +88,6 @@ public class EmployeeServiceImpl implements IEmployeeService {
         return Result.success(200,employeeAndTokenDTO);
     }
 
-    //TODO 注册之后创建一条值班记录
     @Override
     public Result regist(String name, String email, String position, String shopId ,String belong) {
         Employee employee = employeeMapper.selectOne(new QueryWrapper<Employee>().eq("email", email));
@@ -130,6 +130,12 @@ public class EmployeeServiceImpl implements IEmployeeService {
         employeeRole.setHobbyValue("班次时长偏好") ;
         employeeRole.setHobbyValue("无");
         employeeRoleMapper.insert(employeeRole) ;
+
+        //添加times规则
+        int ros = timesMapper.insert(new Times(ID, 0, 0, 0));
+        if (ros==0){
+            return Result.fail(500,"the system has some wrongs") ;
+        }
         return Result.success(200) ;
     }
 

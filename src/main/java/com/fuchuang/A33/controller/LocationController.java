@@ -1,6 +1,7 @@
 package com.fuchuang.A33.controller;
 
 import com.fuchuang.A33.service.Impl.LocationServiceImpl;
+import com.fuchuang.A33.utils.UsualMethodUtils;
 import com.fuchuang.A33.utils.Result;
 import com.fuchuang.A33.utils.ResultWithToken;
 import io.swagger.annotations.Api;
@@ -10,8 +11,6 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/location")
@@ -58,10 +57,10 @@ public class LocationController {
     @GetMapping("/group")
     @ApiOperation(value = "按组展示员工的工作安排")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "groupID", value = "选中的组别，将选中的组的ID信息传入" ,dataType= "Integer") ,
+            @ApiImplicitParam(name = "groupID", value = "选中的组别，将选中的组的ID信息传入" ,dataType= "String") ,
     })
-    public Result showAllLocationsByGroup(Integer groupID){
-        return locationService.showAllLocationsByGroup(groupID) ;
+    public Result showAllLocationsByGroup(String groupID){
+        return locationService.showAllLocationsByGroup(UsualMethodUtils.parseID(groupID)) ;
     }
 
     @PreAuthorize("hasAnyAuthority('root','boss','manage','group')")
@@ -71,7 +70,7 @@ public class LocationController {
             @ApiImplicitParam(name = "employeeID", value = "员工ID号" ,dataType= "String") ,
     })
     public ResultWithToken showEmployeeDetails(String employeeID){
-        return locationService.showEmployeeDetails(employeeID) ;
+        return locationService.showEmployeeDetails(UsualMethodUtils.parseID(employeeID)) ;
     }
 
     //TODO

@@ -4,7 +4,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
-public class LocalDateTimeUtils {
+public class UsualMethodUtils {
 
     public static LocalDateTime StringToChineseLocalDateTime(String date){
         return LocalDateTime.of(Integer.parseInt(date.substring(0, 4)),
@@ -29,5 +29,13 @@ public class LocalDateTimeUtils {
             dayOfWeek = localDateTime.getDayOfWeek() ;
         }
         return localDateTime ;
+    }
+
+    public static String parseID(String ID){
+        if (ID.contains("\"")){
+            String[] split = ID.split("\"");
+            return  split[1];
+        }
+        return ID ;
     }
 }

@@ -13,7 +13,7 @@ public interface ILocationService {
     Result showAllLocationsByWeek(String dateTimeDay);
     Result showAllLocationsByDay(String dateTimeDay);
     Result showAllGroup () ;
-    Result showAllLocationsByGroup(Integer groupID);
+    Result showAllLocationsByGroup(String groupID);
     ResultWithToken showEmployeeDetails(String employeeID) ;
     Result manageEmployeeLocationsByHand( String LocationID , String employeeID) ;
     Result removeLocationsByHand( String LocationID , String employeeID) ;

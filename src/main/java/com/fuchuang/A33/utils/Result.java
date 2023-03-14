@@ -11,13 +11,11 @@ public class Result {
     private Integer state;
     private String message;
     private Object data;
-    private String token ;
 
     public static Result success(int state, Object data , String token){
         Result result = new Result();
         result.setData(data);
         result.setState(state);
-        result.setToken(token);
         return result ;
     }
 

@@ -1,7 +1,6 @@
 package com.fuchuang.A33.service.Impl;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.io.resource.StringResource;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.fuchuang.A33.DTO.EmployeeDetailsInformationDTO;
@@ -12,13 +11,12 @@ import com.fuchuang.A33.mapper.*;
 import com.fuchuang.A33.service.ILocationService;
 import com.fuchuang.A33.utils.Constants;
 import com.fuchuang.A33.utils.Result;
-import com.fuchuang.A33.utils.LocalDateTimeUtils;
+import com.fuchuang.A33.utils.UsualMethodUtils;
 import com.fuchuang.A33.utils.ResultWithToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.sql.Time;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -61,8 +59,8 @@ public class LocationServiceImpl implements ILocationService {
     public Result getThreeWeeks(String dateTimeWeek) {
         ArrayList<WeeksDTO> weeksDTOList = new ArrayList<>();
 
-        LocalDateTime localDateTime = LocalDateTimeUtils.StringToChineseLocalDateTime(dateTimeWeek);
-        LocalDateTime thisWeek = LocalDateTimeUtils.parseToMonday(localDateTime);
+        LocalDateTime localDateTime = UsualMethodUtils.StringToChineseLocalDateTime(dateTimeWeek);
+        LocalDateTime thisWeek = UsualMethodUtils.parseToMonday(localDateTime);
         LocalDateTime lastWeek = thisWeek.minusWeeks(1) ;
         LocalDateTime nextWeek = thisWeek.plusWeeks(1);
 
@@ -113,11 +111,11 @@ public class LocationServiceImpl implements ILocationService {
     public Result showAllLocationsByWeek(String dateTimeWeek) {
 //        String dateTime = getMonday(dateTimeWeek) ;
         //对字符串进行解析
-        LocalDateTime localDateTime = LocalDateTimeUtils.StringToChineseLocalDateTime(dateTimeWeek) ;
+        LocalDateTime localDateTime = UsualMethodUtils.StringToChineseLocalDateTime(dateTimeWeek) ;
 
         //判断是否是星期一
         if (localDateTime.getDayOfWeek()!=DayOfWeek.MONDAY){
-            localDateTime = LocalDateTimeUtils.parseToMonday(localDateTime) ;
+            localDateTime = UsualMethodUtils.parseToMonday(localDateTime) ;
         }
         ArrayList<WorkingDTO> workingDTOList = new ArrayList<>();
         ArrayList<List<WorkingDTO>> list = new ArrayList<>();
@@ -185,7 +183,7 @@ public class LocationServiceImpl implements ILocationService {
      * @return
      */
     @Override
-    public Result showAllLocationsByGroup(Integer groupID) {
+    public Result showAllLocationsByGroup(String groupID) {
         List<Employee> employeeList = employeeMapper.selectList(new QueryWrapper<Employee>().eq("belong", groupID));
         ArrayList<WorkingDTO> workingDTOS = new ArrayList<>();
         for (Employee employee : employeeList) {
@@ -372,11 +370,11 @@ public class LocationServiceImpl implements ILocationService {
      */
     @Override
     public Result showEmployeeLocationsByEmail(String dateTime , String email) {
-        LocalDateTime localDateTime = LocalDateTimeUtils.StringToChineseLocalDateTime(dateTime) ;
+        LocalDateTime localDateTime = UsualMethodUtils.StringToChineseLocalDateTime(dateTime) ;
         Employee employee = employeeMapper.selectOne(new QueryWrapper<Employee>().eq("email", email));
         //判断是否是星期一
         if (localDateTime.getDayOfWeek()!=DayOfWeek.MONDAY){
-            localDateTime = LocalDateTimeUtils.parseToMonday(localDateTime) ;
+            localDateTime = UsualMethodUtils.parseToMonday(localDateTime) ;
         }
         ArrayList<WorkingDTO> workingDTOList = new ArrayList<>();
         ArrayList<List<WorkingDTO>> list = new ArrayList<>();

@@ -1,7 +1,7 @@
 package com.fuchuang.A33.controller;
 
-import com.fuchuang.A33.service.Impl.EmployeeRoleServiceImpl;
 import com.fuchuang.A33.service.Impl.ShopRoleServiceImpl;
+import com.fuchuang.A33.utils.UsualMethodUtils;
 import com.fuchuang.A33.utils.Result;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -43,7 +43,7 @@ public class ShopRoleController {
             @ApiImplicitParam(name = "shopRoleValue", value = "商铺规则值" ,dataType= "String")
     })
     public Result addShopRoleService(String shopID , String shopRoleType , String shopRoleValue){
-        return shopRoleService.addShopRoleService(shopID, shopRoleType, shopRoleValue) ;
+        return shopRoleService.addShopRoleService(UsualMethodUtils.parseID(shopID), shopRoleType, shopRoleValue) ;
     }
 
     @PreAuthorize("hasAnyAuthority('root','boss')")
@@ -55,7 +55,7 @@ public class ShopRoleController {
             @ApiImplicitParam(name = "shopRoleValue", value = "商铺规则值" ,dataType= "String")
     })
     public Result updateShopRoleService(String shopID , String shopRoleType , String shopRoleValue){
-        return shopRoleService.UpdateShopRoleService(shopID, shopRoleType, shopRoleValue) ;
+        return shopRoleService.UpdateShopRoleService(UsualMethodUtils.parseID(shopID), shopRoleType, shopRoleValue) ;
     }
 
     @PreAuthorize("hasAnyAuthority('root','boss')")
@@ -66,6 +66,6 @@ public class ShopRoleController {
             @ApiImplicitParam(name = "shopRoleType", value = "商铺规则类型" ,dataType= "String")
     })
     public Result removeEmployeeRole(String shopID ,String shopRoleType){
-        return shopRoleService.removeShopRoleService(shopID, shopRoleType) ;
+        return shopRoleService.removeShopRoleService(UsualMethodUtils.parseID(shopID), shopRoleType) ;
     }
 }
