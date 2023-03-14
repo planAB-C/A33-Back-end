@@ -2,12 +2,9 @@ package com.fuchuang.A33;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.fuchuang.A33.entity.Authentication;
-import com.fuchuang.A33.entity.Employee;
-import com.fuchuang.A33.entity.EmployeeRole;
-import com.fuchuang.A33.mapper.AuthenticationMapper;
-import com.fuchuang.A33.mapper.EmployeeMapper;
-import com.fuchuang.A33.mapper.EmployeeRoleMapper;
+import com.fuchuang.A33.entity.*;
+import com.fuchuang.A33.mapper.*;
+import com.fuchuang.A33.utils.UsualMethodUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,7 +14,6 @@ import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.List;
 
 @SpringBootTest
 class SpringSecurityApplicationTests {
@@ -30,6 +26,15 @@ class SpringSecurityApplicationTests {
 
     @Autowired
     private EmployeeRoleMapper employeeRoleMapper ;
+
+    @Autowired
+    private WorkingMapper workingMapper ;
+
+    @Autowired
+    private LocationsMapper locationsMapper ;
+
+    @Autowired
+    private TimesMapper timesMapper ;
 
     @Test
     void test1(){
@@ -69,4 +74,9 @@ class SpringSecurityApplicationTests {
         employeeRoleMapper.update(employeeRole,new UpdateWrapper<EmployeeRole>()) ;
     }
 
+    @Test
+    void test5(){
+        String s = UsualMethodUtils.parseID("\"20030212\"");
+        System.out.println(s);
+    }
 }

@@ -5,16 +5,15 @@ import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.lang.UUID;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.fuchuang.A33.DTO.EmployeeAndTokenDTO;
 import com.fuchuang.A33.DTO.EmployeeDTO;
 import com.fuchuang.A33.DTO.EmployeeDetailsInformationDTO;
 import com.fuchuang.A33.DTO.EmployeeInformationDTO;
-import com.fuchuang.A33.entity.Employee;
-import com.fuchuang.A33.entity.EmployeeRole;
-import com.fuchuang.A33.entity.LoginEmployee;
-import com.fuchuang.A33.entity.Shop;
+import com.fuchuang.A33.entity.*;
 import com.fuchuang.A33.mapper.EmployeeMapper;
 import com.fuchuang.A33.mapper.EmployeeRoleMapper;
 import com.fuchuang.A33.mapper.ShopMapper;
+import com.fuchuang.A33.mapper.TimesMapper;
 import com.fuchuang.A33.service.IEmployeeService;
 import com.fuchuang.A33.utils.Constants;
 import com.fuchuang.A33.utils.EmployeeHolder;
@@ -30,6 +29,8 @@ import java.lang.reflect.Array;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import static com.fuchuang.A33.utils.Constants.GET_TOKEN;
 
 @Service
 public class EmployeeServiceImpl implements IEmployeeService {
@@ -48,6 +49,9 @@ public class EmployeeServiceImpl implements IEmployeeService {
 
     @Autowired
     private ShopMapper shopMapper ;
+
+    @Autowired
+    private TimesMapper timesMapper ;
 
     @Override
     public Result login(String email) {
@@ -77,7 +81,11 @@ public class EmployeeServiceImpl implements IEmployeeService {
                 }));
         stringRedisTemplate.opsForHash().putAll(Constants.EMPLOYEE_TOKEN + token,map);
         stringRedisTemplate.expire(Constants.EMPLOYEE_TOKEN + token,60*30, TimeUnit.SECONDS) ;
-        return Result.success(200,token);
+        EmployeeAndTokenDTO employeeAndTokenDTO = new EmployeeAndTokenDTO();
+        BeanUtil.copyProperties(employee , employeeAndTokenDTO);
+        employeeAndTokenDTO.setToken(token);
+        stringRedisTemplate.opsForValue().set(GET_TOKEN + employee.getID() , token);
+        return Result.success(200,employeeAndTokenDTO);
     }
 
     @Override
@@ -122,6 +130,12 @@ public class EmployeeServiceImpl implements IEmployeeService {
         employeeRole.setHobbyValue("班次时长偏好") ;
         employeeRole.setHobbyValue("无");
         employeeRoleMapper.insert(employeeRole) ;
+
+        //添加times规则
+        int ros = timesMapper.insert(new Times(ID, 0, 0, 0));
+        if (ros==0){
+            return Result.fail(500,"the system has some wrongs") ;
+        }
         return Result.success(200) ;
     }
 

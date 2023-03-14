@@ -1,6 +1,7 @@
 package com.fuchuang.A33.controller;
 
 import com.fuchuang.A33.service.Impl.EmployeeRoleServiceImpl;
+import com.fuchuang.A33.utils.UsualMethodUtils;
 import com.fuchuang.A33.utils.Result;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -8,7 +9,6 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -38,7 +38,7 @@ public class EmployeeRoleController {
     })
     public Result UpdateEmployeeRole(String employeeID, String hobbyType1, String hobbyValue1 ,String hobbyType2, String hobbyValue2 ,
                                           String hobbyType3, String hobbyValue3){
-        return employeeRoleService.UpdateEmployeeRole(employeeID, hobbyType1, hobbyValue1 , hobbyType2,hobbyValue2 ,
+        return employeeRoleService.UpdateEmployeeRole(UsualMethodUtils.parseID(employeeID), hobbyType1, hobbyValue1 , hobbyType2,hobbyValue2 ,
                  hobbyType3,  hobbyValue3) ;
     }
 
