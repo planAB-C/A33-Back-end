@@ -15,8 +15,8 @@ public interface ILocationService {
     Result showAllGroup () ;
     Result showAllLocationsByGroup(String groupID);
     ResultWithToken showEmployeeDetails(String employeeID) ;
-    Result manageEmployeeLocationsByHand( String LocationID , String employeeID) ;
-    Result removeLocationsByHand( String LocationID , String employeeID) ;
+    Result manageEmployeeLocationsByHand( String LocationID , String... locationIDList) ;
+    Result removeLocationsByHand( String employeeID , String... LocationIDList) ;
     Result showEmployeeByName( String name) ;
     Result showEmployeeLocationsByEmail(String dateTime ,String email) ;
     Result showFreeEmployees() ;

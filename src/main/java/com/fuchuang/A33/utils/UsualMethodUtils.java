@@ -38,4 +38,16 @@ public class UsualMethodUtils {
         }
         return ID ;
     }
+    public static String getRealFlowID(String locationID ){
+        String ID ;
+        LocalDateTime week = StringToChineseLocalDateTime(locationID.substring(0, 10));
+        int i = 0 ;
+        for( i = 0 ; i < 7 ; i++ ){
+            if (week.minusDays(i).getDayOfWeek() == DayOfWeek.MONDAY) break ;
+        }
+        i = i * Constants.ONEDAY_COUNTS + Integer.parseInt(locationID.substring(11,13)) - 1 ;
+        if( i < 10 ) ID = "0" + i ;
+        else ID = String.valueOf(i) ;
+        return ID ;
+    }
 }

@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.List;
 
 @SpringBootTest
 class SpringSecurityApplicationTests {
@@ -78,5 +79,20 @@ class SpringSecurityApplicationTests {
     void test5(){
         String s = UsualMethodUtils.parseID("\"20030212\"");
         System.out.println(s);
+    }
+
+    @Test
+    void test6(){
+        String realFlowID = UsualMethodUtils.getRealFlowID("2023-03-17_01");
+        System.out.println(realFlowID);
+    }
+
+    @Test
+    void test7(){
+        List<Employee> employees = employeeMapper.selectList(new QueryWrapper<Employee>());
+        for (Employee employee : employees) {
+            Times times = new Times(employee.getID(), 0, 0, 0);
+            timesMapper.insert(times) ;
+        }
     }
 }

@@ -3,24 +3,24 @@ package com.fuchuang.A33.service.Impl;
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.fuchuang.A33.DTO.EmployeeDTO;
 import com.fuchuang.A33.DTO.EmployeeDetailsInformationDTO;
 import com.fuchuang.A33.DTO.WeeksDTO;
 import com.fuchuang.A33.DTO.WorkingDTO;
 import com.fuchuang.A33.entity.*;
 import com.fuchuang.A33.mapper.*;
 import com.fuchuang.A33.service.ILocationService;
-import com.fuchuang.A33.utils.Constants;
-import com.fuchuang.A33.utils.Result;
-import com.fuchuang.A33.utils.UsualMethodUtils;
-import com.fuchuang.A33.utils.ResultWithToken;
+import com.fuchuang.A33.utils.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.sql.Time;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -177,6 +177,7 @@ public class LocationServiceImpl implements ILocationService {
         return Result.success(200,employees);
     }
 
+    //TODO 按照岗位分组
     /**
      * 小组长按照小组的方式进行对本组员工进行展示
      * @param groupID
@@ -277,75 +278,123 @@ public class LocationServiceImpl implements ILocationService {
         return ResultWithToken.success(200, employeeDetailsInformationDTO,token);
     }
 
-    //TODO 添加员工的工作时长
-    //TODO 提供多选
     /**
      * 手动安排员工班次
-     * @param locationID
+     * @param locationIDList
      * @param employeeID
      * @return
      */
     @Override
-    public Result manageEmployeeLocationsByHand( String locationID, String employeeID) {
-        if (locationID.length()!=13) throw new RuntimeException("the input is not right") ;
-        //根据员工ID号进行查询，将得到的内容填充到working中
-        Employee employee = employeeMapper.selectOne(new QueryWrapper<Employee>().eq("ID", employeeID));
-        if (Objects.isNull(employee)) return Result.fail(500,"employee is not excite");
-        Working working = new Working();
-        working.setName(employee.getName());
-        working.setPosition(employee.getPosition());
-        working.setLocationID(locationID);
-        working.setEmployeeID(employeeID);
-        working.setShopID(employee.getShopID());
-        //查看同一个人是否被填入了相同的位置
-        Working work = workingMapper.selectOne(new QueryWrapper<Working>()
-                .eq("employee_ID", employeeID)
-                .eq("location_ID", locationID));
-        if (!Objects.isNull(work)) return Result.fail(500,"this employee has exited here now") ;
+    public Result manageEmployeeLocationsByHand( String employeeID , String... locationIDList)
+    {
+        ArrayList<Working> workingList = new ArrayList<>();
+        for (String locationID : locationIDList) {
 
-        //根据用户选中的班次ID进行查询
-        QueryWrapper<Location> locationsQueryWrapper = new QueryWrapper<>();
-        locationsQueryWrapper.eq("ID",locationID ) ;
-        Location location = locationsMapper.selectOne(locationsQueryWrapper);
-        Location newLocation = new Location();
-        //如果查询结果为空，说明该班次没有人，则将current_num赋值为1；否则，在current_num的基础上加1
-        if (Objects.isNull(location)) {
-            newLocation.setID(locationID);
-            newLocation.setCurrentNumber(1);
-            String flowID = locationID.substring(11);
-            newLocation.setFlowID(flowID);
-            int rows =  locationsMapper.insert(newLocation) ;
-            if (rows!=1)  return Result.fail(500,"please try it again") ;
-        }else{
-            newLocation.setID(locationID);
-            newLocation.setCurrentNumber(location.getCurrentNumber()+1);
-            String flowID = locationID.substring(11);
-            newLocation.setFlowID(flowID);
-            int rows = locationsMapper.update(newLocation,new UpdateWrapper<Location>().eq("ID",locationID)) ;
+            if (locationID.length()!=13)
+                return Result.fail(500,"the input is not right") ;
+            //根据员工ID号进行查询，将得到的内容填充到working中
+            Employee employee = employeeMapper.selectOne(new QueryWrapper<Employee>().eq("ID", employeeID));
+            if (Objects.isNull(employee)) return Result.fail(500,"employee is not excite");
+            Working working = new Working();
+            working.setName(employee.getName());
+            working.setPosition(employee.getPosition());
+            working.setLocationID(locationID);
+            working.setEmployeeID(employeeID);
+            working.setShopID(employee.getShopID());
+            //查看同一个人是否被填入了相同的位置
+            Working work = workingMapper.selectOne(new QueryWrapper<Working>()
+                    .eq("employee_ID", employeeID)
+                    .eq("location_ID", locationID));
+            if (!Objects.isNull(work))
+                throw new RuntimeException("this employee has exited here now") ;
+
+            //根据用户选中的班次ID进行查询
+            Location location = locationsMapper.selectOne(new QueryWrapper<Location>().eq("ID", locationID));
+            Location newLocation = new Location();
+            //如果查询结果为空，说明该班次没有人，则将current_num赋值为1；否则，在current_num的基础上加1
+            if (Objects.isNull(location)) {
+                newLocation.setID(locationID);
+                newLocation.setCurrentNumber(1);
+                String flowID = UsualMethodUtils.getRealFlowID(locationID);
+                newLocation.setFlowID(flowID);
+                int rows =  locationsMapper.insert(newLocation) ;
+                if (rows!=1)  return Result.fail(500,"please try it again") ;
+            }else{
+                newLocation.setID(locationID);
+                newLocation.setCurrentNumber(location.getCurrentNumber()+1);
+                newLocation.setFlowID(UsualMethodUtils.getRealFlowID(locationID));
+                int rows = locationsMapper.update(newLocation,new UpdateWrapper<Location>().eq("ID",locationID)) ;
+            }
+
+            //存入
+            workingList.add(working) ;
         }
-        //插入
-        int rows = workingMapper.insert(working) ;
+        int rows = 0 ;
+        for (Working working : workingList) {
+            rows = workingMapper.insert(working) ;
+        }
+        int size = workingList.size();
+        if (rows!=1)  return Result.fail(500,"please try it again") ;
+        //timesmapper
+//        rows = timesMapper.update(new Times(), new UpdateWrapper<Times>()
+//                .eq("employee_ID", employeeID)
+//                .setSql("counts = counts + " + locationIDList.length)
+//                .setSql("time_sum = time_sum + " + size * 30));
+        Times times = timesMapper.selectOne(new QueryWrapper<Times>().eq("employee_ID",employeeID));
+        int counts = times.getCounts() + 1 ;
+        double timeSum = counts * 30 ;
+        Times time = new Times();
+        time.setCounts(counts);
+        time.setTimeSum(timeSum);
+        rows = timesMapper.update(time, new QueryWrapper<Times>().eq("employee_ID", employeeID));
         if (rows!=1)  return Result.fail(500,"please try it again") ;
         return Result.success(200);
     }
 
-    //TODO 减少员工的工作时长
-    //TODO 提供多选
+    //location的表只能增加不能删除
     /**
      * 手动移除班次
-     * @param locationID
+     * @param locationIDList
      * @param employeeID
      * @return
      */
     @Override
-    public Result removeLocationsByHand (String locationID , String employeeID ) {
-        int rows = locationsMapper.delete(new QueryWrapper<Location>().eq("location_ID", locationID));
-        if (rows==0){
-            return Result.fail(500,"the system has some wrongs" );
+    public Result removeLocationsByHand (String employeeID ,String... locationIDList) {
+        String IDs = "" ;
+        for (int i = 0 ; i < locationIDList.length ; i++) {
+             if(locationIDList.length-1 != i) IDs =  IDs + "\'"  + locationIDList[i] + '\'' + "," ;
+             else IDs = IDs + '\'' + locationIDList[i] + '\'' ;
         }
-        rows = timesMapper.update(new Times(), new UpdateWrapper<Times>()
-                .eq("employee", employeeID)
-                .setSql("time_sum - 30"));
+//        ArrayList<Object> IDs = new ArrayList<>(Arrays.asList(locationIDList));
+//        List<Working> workings = workingMapper.selectList(new QueryWrapper<Working>().inSql("employee_ID", IDs));
+//        int counts = workings.size() ;
+        Long counts = workingMapper.selectCount(new QueryWrapper<Working>().inSql("location_ID", IDs));
+
+        if (counts != locationIDList.length)
+            return Result.fail(500,"some locations has not excite , please flush the page again") ;
+
+        int rows = workingMapper.delete(new QueryWrapper<Working>()
+                .inSql("location_ID", IDs)
+                .eq("employee_ID",employeeID));
+        if (rows==0){
+            return Result.fail(500,"the location is not excite now , please donnot delete agein " );
+        }
+
+        rows = locationsMapper.update(new Location(),new UpdateWrapper<Location>()
+                        .inSql("ID",IDs)
+                .setSql("current_number = current_number - 1"));
+        if (rows==0){
+            return Result.fail(500,"the location is not excite now , please donnot delete agein " );
+        }
+
+
+        Times times = timesMapper.selectOne(new QueryWrapper<Times>().eq("employee_ID",employeeID));
+        int count = times.getCounts() - locationIDList.length ;
+        double timeSum = count * 30 ;
+        Times time = new Times();
+        time.setCounts(count);
+        time.setTimeSum(timeSum);
+        rows = timesMapper.update(time, new QueryWrapper<Times>().eq("employee_ID", employeeID));
         if (rows==0){
             return Result.fail(500,"the system has some wrongs") ;
         }
@@ -411,12 +460,13 @@ public class LocationServiceImpl implements ILocationService {
      */
     @Override
     public Result showFreeEmployees() {
-        Employee em = new Employee();
+        EmployeeDTO em = EmployeeHolder.getEmloyee();
+        String employeeID = em.getID();
         List<Employee> employeeList = employeeMapper.selectList(new QueryWrapper<Employee>()
                 .eq("shop_ID", em.getShopID()));
         for (Employee employee : employeeList) {
-            Times times = timesMapper.selectOne(new QueryWrapper<Times>().eq("employee_ID", employee.getID()));
-            if ( times.getPermitTime() - times.getTimeSum() <= Constants.MIN_WORKINGTIME ){
+            Times times = timesMapper.selectOne(new QueryWrapper<Times>().eq("employee_ID", employeeID));
+            if ( times.getPermitTime() - times.getTimeSum() >= Constants.MIN_WORKINGTIME ){
                 employeeList.remove(employee) ;
             }
         }

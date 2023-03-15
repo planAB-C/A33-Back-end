@@ -48,7 +48,7 @@ public class EmployeeController {
 
     @PreAuthorize("hasAuthority('view')")
     @PutMapping("/group")
-    @ApiOperation(value = "更改小组长" ,position = 2)
+    @ApiOperation(value = "更改小组长")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "groupEmail", value = "小组长邮箱" ,dataType= "String" ) ,
     })
