@@ -16,9 +16,18 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/location")
 @Api(tags = "员工班次")
 public class LocationController {
-    //TODO 分清楚哪些功能root用户无法访问
     @Autowired
     private LocationServiceImpl locationService ;
+
+    @GetMapping("/threeWeeks")
+    @ApiOperation(value = "获取上周、本周、下周的具体时间")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "dateTime", value = "当前时间" ,dataType= "String")
+    })
+    public Result getThreeWeeks(String dateTime){
+        return locationService.getThreeWeeks(dateTime) ;
+    }
+
 
     @GetMapping("/monday")
     @ApiOperation(value = "获取本周星期一的日期")

@@ -87,12 +87,4 @@ class SpringSecurityApplicationTests {
         System.out.println(realFlowID);
     }
 
-    @Test
-    void test7(){
-        List<Employee> employees = employeeMapper.selectList(new QueryWrapper<Employee>());
-        for (Employee employee : employees) {
-            Times times = new Times(employee.getID(), 0, 0, 0);
-            timesMapper.insert(times) ;
-        }
-    }
 }
