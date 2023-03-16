@@ -16,9 +16,18 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/location")
 @Api(tags = "员工班次")
 public class LocationController {
-    //TODO 分清楚哪些功能root用户无法访问
     @Autowired
     private LocationServiceImpl locationService ;
+
+    @GetMapping("/threeWeeks")
+    @ApiOperation(value = "获取上周、本周、下周的具体时间")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "dateTime", value = "当前时间" ,dataType= "String")
+    })
+    public Result getThreeWeeks(String dateTime){
+        return locationService.getThreeWeeks(dateTime) ;
+    }
+
 
     @GetMapping("/monday")
     @ApiOperation(value = "获取本周星期一的日期")
@@ -73,7 +82,6 @@ public class LocationController {
         return locationService.showEmployeeDetails(UsualMethodUtils.parseID(employeeID)) ;
     }
 
-    //TODO
     @PreAuthorize("hasAnyAuthority('root','boss','manage')")
     @PutMapping("/manage")
     @ApiOperation(value = "手动安排员工班次")
@@ -81,11 +89,10 @@ public class LocationController {
             @ApiImplicitParam(name = "locationID", value = "值班号" ,dataType= "String") ,
             @ApiImplicitParam(name = "employeeID", value = "员工ID号" ,dataType= "String")
     })
-    public Result manageEmployeeLocationsByHand( String locationID , String employeeID){
-        return locationService.manageEmployeeLocationsByHand( locationID, employeeID) ;
+    public Result manageEmployeeLocationsByHand( String employeeID,String... locationID){
+        return locationService.manageEmployeeLocationsByHand( employeeID, locationID) ;
     }
 
-    //TODO
     @PreAuthorize("hasAnyAuthority('root','boss','manage')")
     @DeleteMapping("/remove")
     @ApiOperation(value = "手动移除员工班次")
@@ -93,14 +100,13 @@ public class LocationController {
             @ApiImplicitParam(name = "locationID", value = "值班号" ,dataType= "String") ,
             @ApiImplicitParam(name = "employeeID", value = "员工ID号" ,dataType= "String")
     })
-    public Result removeLocationsByHand( String LocationID , String employeeID){
-        return locationService.removeLocationsByHand( LocationID , employeeID) ;
+    public Result removeLocationsByHand( String employeeID ,String... locationID ){
+        return locationService.removeLocationsByHand(  employeeID , locationID) ;
     }
 
-    //TODO
     @PreAuthorize("hasAnyAuthority('root','boss','manage','group')")
     @GetMapping("/name")
-    @ApiOperation(value = "（搜索时使用）通过员工姓名查询员工姓名")
+    @ApiOperation(value = "（搜索时使用）通过员工姓名展示员工（与/A33/location/freeEmployees搭配使用，选中后传入员工的email信息）")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "name", value = "姓名" ,dataType= "String")
     })
@@ -108,19 +114,17 @@ public class LocationController {
         return locationService.showEmployeeByName( name) ;
     }
 
-    //TODO
     @PreAuthorize("hasAnyAuthority('root','boss','manage','group')")
-    @GetMapping("/freeEmployees")
+    @GetMapping("/selectLocations")
     @ApiOperation(value = "搭配/A33/location/name接口使用，用于展示所搜索的用户所有的排班信息")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "dateTime", value = "日期" ,dataType= "String") ,
-            @ApiImplicitParam(name = "name", value = "员工姓名" ,dataType= "String")
+            @ApiImplicitParam(name = "email", value = "员工邮箱" ,dataType= "String")
     })
     public Result showEmployeeLocationsByEmail(String dateTime ,String email){
         return locationService.showEmployeeLocationsByEmail(dateTime , email) ;
     }
 
-    //TODO
     @PreAuthorize("hasAnyAuthority('boss','manage','group')")
     @GetMapping("/showFree")
     @ApiOperation(value = "展示所有的空闲用户")
@@ -128,5 +132,4 @@ public class LocationController {
         return locationService.showFreeEmployees() ;
     }
 
-    //TODO
 }
