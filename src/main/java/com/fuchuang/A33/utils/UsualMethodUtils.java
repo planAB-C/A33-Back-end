@@ -1,8 +1,18 @@
 package com.fuchuang.A33.utils;
 
+import cn.hutool.core.bean.BeanUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.fuchuang.A33.DTO.WorkingDTO;
+import com.fuchuang.A33.entity.Employee;
+import com.fuchuang.A33.entity.Working;
+import com.fuchuang.A33.mapper.WorkingMapper;
+
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 public class UsualMethodUtils {
 
@@ -50,4 +60,21 @@ public class UsualMethodUtils {
         else ID = String.valueOf(i) ;
         return ID ;
     }
+
+    public static ArrayList<WorkingDTO> getLocationsByWorking(List<Employee> employeeList , WorkingMapper workingMapper){
+        ArrayList<WorkingDTO> workingDTOS = new ArrayList<>();
+        for (Employee employee : employeeList) {
+            List<Working> workingList = workingMapper.selectList(new QueryWrapper<Working>().eq("employee_ID", employee.getID()));
+            for (Working working : workingList) {
+                if (!Objects.isNull(working)) {
+                    WorkingDTO workingDTO = new WorkingDTO();
+                    BeanUtil.copyProperties(working, workingDTO);
+                    workingDTO.setLocationRealID(working.getLocationID().substring(11));
+                    workingDTOS.add(workingDTO);
+                }
+            }
+        }
+        return workingDTOS ;
+    }
+
 }
