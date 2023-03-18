@@ -89,7 +89,7 @@ public class EmployeeServiceImpl implements IEmployeeService {
     }
 
     @Override
-    public Result regist(String name, String email, String position, String shopId ,String belong) {
+    public Result regist(String name, String email, String position, String shopId ,String belong ,String phone) {
         Employee employee = employeeMapper.selectOne(new QueryWrapper<Employee>().eq("email", email));
         if(!Objects.isNull(employee)){
             return Result.fail(500,"this email has already registed ");
@@ -103,7 +103,7 @@ public class EmployeeServiceImpl implements IEmployeeService {
         else ID = count.toString() ;
         //如果belong为空，表明没有小组长
         if (belong == null) {
-            if(employeeMapper.insert(new Employee(ID, name, email, position, shopId , null ))==0){
+            if(employeeMapper.insert(new Employee(ID, name, email, position, shopId , null ,phone ))==0){
                 return Result.fail(500,"the system has some wrongs now") ;
             }
         }
@@ -111,7 +111,7 @@ public class EmployeeServiceImpl implements IEmployeeService {
         //如果belong不为空，查询并插入
         else {
             Employee group = employeeMapper.selectOne(new QueryWrapper<Employee>().eq("email", belong));
-            if(employeeMapper.insert(new Employee(ID, name, email, position, shopId , group.getID() ))==0){
+            if(employeeMapper.insert(new Employee(ID, name, email, position, shopId , group.getID() , phone ))==0){
                 return Result.fail(500,"the system has some wrongs now") ;
             }
         }
@@ -157,10 +157,11 @@ public class EmployeeServiceImpl implements IEmployeeService {
     }
 
     @Override
-    public Result updateEmployeeInformation(String email, String position) {
+    public Result updateEmployeeInformation(String email, String position,String phone) {
         Employee employee = new Employee();
         employee.setPosition(position);
         employee.setEmail(email);
+        employee.setPhone(phone);
         int rows = employeeMapper.update(employee, new UpdateWrapper<Employee>().eq("ID", EmployeeHolder.getEmloyee().getID()));
         if (rows==0){
             Result.fail(500,"please try it again") ;
@@ -251,16 +252,32 @@ public class EmployeeServiceImpl implements IEmployeeService {
     }
 
     @Override
-    public Result updateOtherImformation(String ID, String email, String position, String belong) {
-        Employee em = employeeMapper.selectOne(new QueryWrapper<Employee>().eq("email", belong));
+    public Result updateOtherImformation(String ID, String email, String position, String belong ,String phone) {
+        Employee group = new Employee() ;
+        if (belong!=null){
+            group = employeeMapper.selectOne(new QueryWrapper<Employee>().eq("email", belong));
+            if (Objects.isNull(group)){
+                return Result.fail(500,"the group can not be found") ;
+            }
+            belong = group.getID() ;
+        }
+
+        Employee isRoot = employeeMapper.selectOne(new QueryWrapper<Employee>().eq("ID", ID));
+        if (Objects.isNull(isRoot)){
+            return Result.fail(500,"the employee can not be found") ;
+        }
+        if (isRoot.getPosition().equals("root")){
+            return Result.fail(500,"the root can not be found") ;
+        }
         //限定只能修改root权限以下和本商店的员工
         Employee employee = new Employee();
         employee.setEmail(email);
         employee.setPosition(position);
-        employee.setBelong(em.getID());
+        employee.setBelong(belong);
+        employee.setPhone(phone);
         int rows = employeeMapper.update(employee,
                 new UpdateWrapper<Employee>()
-                        .eq("shop_ID",em.getShopID())
+                        .eq("shop_ID",isRoot.getShopID())
                         .eq("ID", ID));
         if (rows==0){
             return Result.fail(500,"please try it again") ;
