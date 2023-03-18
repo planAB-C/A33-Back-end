@@ -57,33 +57,34 @@ public class LocationServiceImpl implements ILocationService {
      * @return
      */
     @Override
-    public Result getThreeWeeks(String dateTimeWeek) {
+    public Result getThreeMonthes(String dateTimeWeek) {
         ArrayList<WeeksDTO> weeksDTOList = new ArrayList<>();
 
         LocalDateTime localDateTime = UsualMethodUtils.StringToChineseLocalDateTime(dateTimeWeek);
-        LocalDateTime thisWeek = UsualMethodUtils.parseToMonday(localDateTime);
-        LocalDateTime lastWeek = thisWeek.minusWeeks(1) ;
-        LocalDateTime nextWeek = thisWeek.plusWeeks(1);
 
-        String lastWeek1 = lastWeek.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        String thisWeek1 = thisWeek.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        String nextWeek1 = nextWeek.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        WeeksDTO week1 = new WeeksDTO("上周",
-                lastWeek1, String.valueOf(lastWeek.getDayOfMonth()),
-                String.valueOf(thisWeek.minusDays(1).getDayOfMonth()));
+        LocalDateTime today = UsualMethodUtils.parseToMonday(localDateTime);
+        LocalDateTime lastThreeMonthes = today.minusMonths(3);
+        LocalDateTime NextThreeMonthes = today.plusMonths(3);
+        LocalDateTime time = lastThreeMonthes ;
 
-        WeeksDTO week2 = new WeeksDTO("本周",
-                thisWeek1, String.valueOf(thisWeek.getDayOfMonth()),
-                String.valueOf(nextWeek.minusDays(1).getDayOfMonth()));
+        int count = 1 ;
+        String counts = "第" + count + "周" ;
+        while(time.isBefore(NextThreeMonthes.plusWeeks(1))){
+            String date = time.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            int start = time.getDayOfMonth();
+            LocalDateTime nextWeek = time.plusWeeks(1).minusDays(1);
+            int end = nextWeek.getDayOfMonth();
 
-
-        WeeksDTO week3 = new WeeksDTO("下周",
-                nextWeek1, String.valueOf(nextWeek.getDayOfMonth()),
-                String.valueOf(nextWeek.plusWeeks(1).minusDays(1).getDayOfMonth()));
-
-        weeksDTOList.add(week1) ;
-        weeksDTOList.add(week2) ;
-        weeksDTOList.add(week3) ;
+            WeeksDTO weeksDTO = new WeeksDTO();
+            weeksDTO.setCounts(counts);
+            weeksDTO.setWeek(date);
+            weeksDTO.setStartDay(start>=10 ? String.valueOf(start) : "0" + start);
+            weeksDTO.setEndDay(end>=10 ? String.valueOf(end) : "0" + end);
+            count++ ;
+            time = time.plusWeeks(1) ;
+            counts = "第" + count + "周" ;
+            weeksDTOList.add(weeksDTO) ;
+        }
         return Result.success(200,weeksDTOList);
     }
 
