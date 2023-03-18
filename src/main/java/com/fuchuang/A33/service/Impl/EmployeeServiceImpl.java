@@ -25,10 +25,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-import java.lang.reflect.Array;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import static com.fuchuang.A33.utils.Constants.GET_TOKEN;
 
@@ -97,10 +95,10 @@ public class EmployeeServiceImpl implements IEmployeeService {
         if (position.equals("root")){
             return Result.fail(500,"position can not be root") ;
         }
-        Long count = employeeMapper.selectCount(new QueryWrapper<>()) + 1;
-        String ID = null ;
+        long count = employeeMapper.selectCount(new QueryWrapper<>()) + 1;
+        String ID ;
         if(count<10) ID = "0" + count ;
-        else ID = count.toString() ;
+        else ID = Long.toString(count);
         //如果belong为空，表明没有小组长
         if (belong == null) {
             if(employeeMapper.insert(new Employee(ID, name, email, position, shopId , null ,phone ))==0){
@@ -253,23 +251,27 @@ public class EmployeeServiceImpl implements IEmployeeService {
 
     @Override
     public Result updateOtherImformation(String ID, String email, String position, String belong ,String phone) {
-        Employee group = new Employee() ;
-        if (belong!=null){
-            group = employeeMapper.selectOne(new QueryWrapper<Employee>().eq("email", belong));
-            if (Objects.isNull(group)){
-                return Result.fail(500,"the group can not be found") ;
-            }
-            belong = group.getID() ;
+        Employee group = employeeMapper.selectOne(new QueryWrapper<Employee>().eq("email",belong)) ;
+        if (!Objects.isNull(group))  belong = group.getID() ;
+        else belong = "00" ;
+
+        boolean isHighAuthentication = position.equals("小组长") || position.equals("店长") || position.equals("经理");
+        if (!belong.equals("00") && isHighAuthentication){
+            belong = "00" ;
+        }
+        if (belong.equals("00") && !isHighAuthentication){
+            return Result.fail(500,"the group must be changed ") ;
         }
 
         Employee isRoot = employeeMapper.selectOne(new QueryWrapper<Employee>().eq("ID", ID));
         if (Objects.isNull(isRoot)){
             return Result.fail(500,"the employee can not be found") ;
         }
-        if (isRoot.getPosition().equals("root")){
+        if (isRoot.getPosition().equals("root")||isRoot.getPosition().equals("店长")){
             return Result.fail(500,"the root can not be found") ;
         }
-        //限定只能修改root权限以下和本商店的员工
+
+        //限定只能修改root和boss权限以下和本商店的员工
         Employee employee = new Employee();
         employee.setEmail(email);
         employee.setPosition(position);
@@ -287,7 +289,7 @@ public class EmployeeServiceImpl implements IEmployeeService {
 
     @Override
     public Result showAllShop() {
-        List<Shop> shops = shopMapper.selectList(new QueryWrapper<Shop>());
+        List<Shop> shops = shopMapper.selectList(new QueryWrapper<>());
         return Result.success(200,shops);
     }
 
