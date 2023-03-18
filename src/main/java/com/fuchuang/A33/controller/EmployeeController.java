@@ -34,16 +34,17 @@ public class EmployeeController {
     }
 
     @PostMapping("/regist")
-    @ApiOperation(value = "注册")
+    @ApiOperation(value = "注册(需要更改,新增员工手机号码)")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "name", value = "员工姓名" ,dataType= "String") ,
             @ApiImplicitParam(name = "email", value = "员工邮箱" ,dataType= "String") ,
             @ApiImplicitParam(name = "position", value = "员工职位" ,dataType= "String") ,
             @ApiImplicitParam(name = "shopID", value = "员工所属商店的ID号" ,dataType= "String") ,
-            @ApiImplicitParam(name = "belong", value = "员工所属的组长的邮箱" ,dataType= "String")
+            @ApiImplicitParam(name = "belong", value = "员工所属的组长的邮箱" ,dataType= "String") ,
+            @ApiImplicitParam(name = "phone", value = "员工的手机号码" ,dataType= "String")
     })
-    public Result regist(String name , String email ,String position ,String shopID ,String belong){
-        return employeeService.regist(name ,email ,position ,shopID ,belong) ;
+    public Result regist(String name , String email ,String position ,String shopID ,String belong , String phone){
+        return employeeService.regist(name ,email ,position ,shopID ,belong ,phone) ;
     }
 
     @PreAuthorize("hasAuthority('view')")
@@ -52,26 +53,28 @@ public class EmployeeController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "groupEmail", value = "小组长邮箱" ,dataType= "String" ) ,
     })
-    public Result regist(String groupEmail ){
+    public Result group(String groupEmail ){
         return employeeService.changeGroup(groupEmail) ;
     }
 
     @PreAuthorize("hasAnyAuthority('root','boss','manage','group','view')")
     @GetMapping("/own")
-    @ApiOperation(value = "展示个人信息" )
+    @ApiOperation(value = "展示个人信息(需要更改,新增员工手机号码)" )
     public ResultWithToken showOwnImformation(){
         return locationService.showEmployeeDetails(EmployeeHolder.getEmloyee().getID()) ;
     }
 
     @PreAuthorize("hasAnyAuthority('root','boss','manage','group','view')")
     @PutMapping("/updateOwn")
-    @ApiOperation(value = "修改个人信息" )
+    @ApiOperation(value = "修改个人信息(需要更改,新增员工手机号码)" )
     @ApiImplicitParams({
             @ApiImplicitParam(name = "email", value = "员工邮箱" ,dataType= "String") ,
             @ApiImplicitParam(name = "position", value = "员工职位" ,dataType= "String") ,
+            @ApiImplicitParam(name = "phone", value = "员工手机号码" ,dataType= "String") ,
+
     })
-    public Result updateOwnImformation(String email,String position ){
-        return employeeService.updateEmployeeInformation(email,position ) ;
+    public Result updateOwnImformation(String email,String position,String phone ){
+        return employeeService.updateEmployeeInformation(email,position,phone ) ;
     }
 
     @PreAuthorize("hasAnyAuthority('boss','manage','group','view')")
@@ -98,10 +101,11 @@ public class EmployeeController {
             @ApiImplicitParam(name = "ID", value = "员工ID，前端选中后传入" ,dataType= "String") ,
             @ApiImplicitParam(name = "email", value = "员工邮箱" ,dataType= "String") ,
             @ApiImplicitParam(name = "position", value = "员工职位" ,dataType= "String") ,
-            @ApiImplicitParam(name = "belong", value = "员工所属的组长的邮箱" ,dataType= "String")
+            @ApiImplicitParam(name = "belong", value = "员工所属的组长的邮箱" ,dataType= "String") ,
+            @ApiImplicitParam(name = "phone", value = "员工电话号码" ,dataType= "String") ,
     })
-    public Result updateOtherImformation(String ID ,String email,String position , String belong){
-        return employeeService.updateOtherImformation( UsualMethodUtils.parseID(ID) ,  email , position , belong) ;
+    public Result updateOtherImformation(String ID ,String email,String position , String belong, String phone){
+        return employeeService.updateOtherImformation( UsualMethodUtils.parseID(ID) ,  email , position , belong , phone) ;
     }
 
     @PreAuthorize("hasAnyAuthority('root')")

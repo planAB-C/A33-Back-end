@@ -205,10 +205,10 @@ public class LocationServiceImpl implements ILocationService {
     @Override
     public ResultWithToken showEmployeeDetails(String employeeID) {
         Employee employee = employeeMapper.selectOne(new QueryWrapper<Employee>().eq("ID", employeeID));
-        if (employee.getPosition()=="root") return ResultWithToken.fail(500,"can not search user named 'root' ") ;
-        if (employee==null){
+        if (Objects.isNull(employee)){
             return ResultWithToken.fail(500,"the employee is not excite now , please sure it now") ;
         }
+        if (employee.getPosition().equals("root")) return ResultWithToken.fail(500,"can not search user named 'root' ") ;
         //对需要返回的具体员工信息封装到EmployeeDetails类中
         EmployeeDetailsInformationDTO employeeDetailsInformationDTO = new EmployeeDetailsInformationDTO();
         employeeDetailsInformationDTO.setEmail(employee.getEmail());
@@ -225,6 +225,7 @@ public class LocationServiceImpl implements ILocationService {
 
         employeeDetailsInformationDTO.setID(employee.getID());
         employeeDetailsInformationDTO.setName(employee.getName());
+        employeeDetailsInformationDTO.setPhone(employee.getPhone());
         //添加员工喜好
         List<EmployeeRole> employeeRoleList = employeeRoleMapper.selectList
                 (new QueryWrapper<EmployeeRole>().eq("employee_ID", employeeID));

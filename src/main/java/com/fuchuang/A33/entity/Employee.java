@@ -20,6 +20,7 @@ public class Employee  {
     private String ID ;
     private String name ;
     private String email ;
+    private String phone ;
     private String position ;
     @TableField("shop_ID")
     private String  shopID ;
@@ -27,7 +28,7 @@ public class Employee  {
     @TableField(exist = false)
     private List<String> permissions ;
 
-    public Employee(String ID, String name, String email, String position, String shopID, String belong ){
+    public Employee(String ID, String name, String email, String position, String shopID, String belong , String phone ){
         this.ID = ID ;
         this.name = name ;
         this.email = email ;

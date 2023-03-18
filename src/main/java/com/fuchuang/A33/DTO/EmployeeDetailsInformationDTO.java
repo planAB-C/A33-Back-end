@@ -11,6 +11,7 @@ public class EmployeeDetailsInformationDTO {
     private String ID ;
     private String name ;
     private String email ;
+    private String phone ;
     private String position ;
     private String shopName ;
     private String groupName ;
