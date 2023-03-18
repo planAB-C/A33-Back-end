@@ -20,4 +20,5 @@ public interface ILocationService {
     Result showEmployeeByName( String name) ;
     Result showEmployeeLocationsByEmail(String dateTime ,String email) ;
     Result showFreeEmployees() ;
+    Result showEmployeeLocationsByPosition(String position);
 }

@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.fuchuang.A33.utils.Constants.GET_TOKEN;
+import static com.fuchuang.A33.utils.UsualMethodUtils.getLocationsByWorking;
 
 @Service
 public class LocationServiceImpl implements ILocationService {
@@ -174,26 +175,26 @@ public class LocationServiceImpl implements ILocationService {
     @Override
     public Result showAllGroup() {
         List<Employee> employees = employeeMapper.selectList(new QueryWrapper<Employee>().eq("position", "小组长"));
-        return Result.success(200,employees);
+        ArrayList<EmployeeDTO> employeeDTOS = new ArrayList<>();
+        for (Employee employee : employees) {
+            EmployeeDTO employeeDTO = new EmployeeDTO();
+            BeanUtil.copyProperties(employee,employeeDTO);
+            employeeDTOS.add(employeeDTO) ;
+        }
+        return Result.success(200,employeeDTOS);
     }
 
-    //TODO 按照岗位分组
     /**
-     * 小组长按照小组的方式进行对本组员工进行展示
+     * 按照小组的方式对员工的班次进行展示
      * @param groupID
      * @return
      */
     @Override
     public Result showAllLocationsByGroup(String groupID) {
         List<Employee> employeeList = employeeMapper.selectList(new QueryWrapper<Employee>().eq("belong", groupID));
-        ArrayList<WorkingDTO> workingDTOS = new ArrayList<>();
-        for (Employee employee : employeeList) {
-            Working working = workingMapper.selectOne(new QueryWrapper<Working>().eq("ID", employee.getID()));
-            WorkingDTO workingDTO = new WorkingDTO();
-            BeanUtil.copyProperties(working,workingDTO);
-            workingDTO.setLocationRealID(working.getLocationID().substring(11));
-            workingDTOS.add(workingDTO) ;
-        }
+        Employee em = employeeMapper.selectOne(new QueryWrapper<Employee>().eq("ID", groupID));
+        employeeList.add(em) ;
+        ArrayList<WorkingDTO> workingDTOS = getLocationsByWorking(employeeList,workingMapper) ;
         return Result.success(200,workingDTOS);
     }
 
@@ -414,7 +415,7 @@ public class LocationServiceImpl implements ILocationService {
     }
 
     /**
-     * 通过email展示位次信息，与前面的showEmployeeByName搭配使用
+     * 通过email展示班次信息，与前面的showEmployeeByName搭配使用
      * @param email
      * @return
      */
@@ -472,6 +473,18 @@ public class LocationServiceImpl implements ILocationService {
             }
         }
         return Result.success(200,employeeList);
+    }
+
+    @Override
+    public Result showEmployeeLocationsByPosition(String position) {
+        if (position.equals("root")){
+            return Result.fail(500,"root用户不能被查询") ;
+        }
+        List<Employee> employees = employeeMapper.selectList(new QueryWrapper<Employee>()
+                .eq("position", position)
+                .eq("shop_ID", EmployeeHolder.getEmloyee().getShopID()));
+        ArrayList<WorkingDTO> workingDTOS = getLocationsByWorking(employees , workingMapper) ;
+        return Result.success(200,workingDTOS);
     }
 
 }
