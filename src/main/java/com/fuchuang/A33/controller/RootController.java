@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/root")
-@Api("root页面（暂时不需要写）")
+@Api(value = "root页面（暂时不需要写）")
 public class RootController {
     @Autowired
     private ShopRoleServiceImpl shopRoleService ;
