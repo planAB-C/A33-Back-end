@@ -25,7 +25,7 @@ public class EmployeeController {
     private EmployeeServiceImpl employeeService ;
 
     @GetMapping("/login")
-    @ApiOperation(value = "登陆（返回值是token，前端需要将token设置为全局变量，每次访问时请求头都需要携带token）" ,position = 1)
+    @ApiOperation(value = "登陆（返回值是token，前端需要将token设置为全局变量，每次访问时请求头都需要携带token）")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "email", value = "员工邮箱" ,dataType= "String")
     })
@@ -57,14 +57,14 @@ public class EmployeeController {
         return employeeService.changeGroup(groupEmail) ;
     }
 
-    @PreAuthorize("hasAnyAuthority('root','boss','manage','group','view')")
+    @PreAuthorize("hasAnyAuthority('boss','manage','group','view')")
     @GetMapping("/own")
     @ApiOperation(value = "展示个人信息(需要更改,新增员工手机号码)" )
     public ResultWithToken showOwnImformation(){
         return locationService.showEmployeeDetails(EmployeeHolder.getEmloyee().getID()) ;
     }
 
-    @PreAuthorize("hasAnyAuthority('root','boss','manage','group','view')")
+    @PreAuthorize("hasAnyAuthority('boss','manage','group','view')")
     @PutMapping("/updateOwn")
     @ApiOperation(value = "修改个人信息(需要更改,新增员工手机号码)" )
     @ApiImplicitParams({
@@ -84,19 +84,9 @@ public class EmployeeController {
         return employeeService.showOtherImformation() ;
     }
 
-    @PreAuthorize("hasAnyAuthority('root')")
-    @GetMapping("/rootForAll")
-    @ApiOperation(value = "root展示店铺所有人的信息" )
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "shopID", value = "店铺ID" ,dataType= "String") ,
-    })
-    public Result showOtherImformation(String shopID){
-        return employeeService.showEmployeeByRoot(UsualMethodUtils.parseID(shopID)) ;
-    }
-
-    @PreAuthorize("hasAnyAuthority('root','boss')")
+    @PreAuthorize("hasAnyAuthority('boss')")
     @PutMapping("/updateOther")
-    @ApiOperation(value = "高权限用户(root,boss)修改员工信息" )
+    @ApiOperation(value = "高权限用户(boss)修改员工信息" )
     @ApiImplicitParams({
             @ApiImplicitParam(name = "ID", value = "员工ID，前端选中后传入" ,dataType= "String") ,
             @ApiImplicitParam(name = "email", value = "员工邮箱" ,dataType= "String") ,
@@ -106,13 +96,6 @@ public class EmployeeController {
     })
     public Result updateOtherImformation(String ID ,String email,String position , String belong, String phone){
         return employeeService.updateOtherImformation( UsualMethodUtils.parseID(ID) ,  email , position , belong , phone) ;
-    }
-
-    @PreAuthorize("hasAnyAuthority('root')")
-    @GetMapping("/allShop")
-    @ApiOperation(value = "展示所有店铺（root用户专用页面）" )
-    public Result showAllShop(){
-        return employeeService.showAllShop() ;
     }
 
 }

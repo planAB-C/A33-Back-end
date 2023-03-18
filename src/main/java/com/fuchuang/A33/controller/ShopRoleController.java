@@ -21,20 +21,7 @@ public class ShopRoleController {
     @Autowired
     private ShopRoleServiceImpl shopRoleService ;
 
-    @PreAuthorize("hasAnyAuthority('root')")
-    @PostMapping("/addShop")
-    @ApiOperation(value = "添加商铺")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "name", value = "商铺名" ,dataType= "String") ,
-            @ApiImplicitParam(name = "address", value = "商铺地址" ,dataType= "String") ,
-            @ApiImplicitParam(name = "size" , value = "商铺面积" , dataType = "double") ,
-    })
-    public Result addShop(String name , String address , double size){
-        return shopRoleService.addShop(name, address, size) ;
-    }
-
-
-    @PreAuthorize("hasAnyAuthority('root','boss')")
+    @PreAuthorize("hasAnyAuthority('boss')")
     @PostMapping("/addRole")
     @ApiOperation(value = "添加商铺规则")
     @ApiImplicitParams({
@@ -46,7 +33,7 @@ public class ShopRoleController {
         return shopRoleService.addShopRoleService(UsualMethodUtils.parseID(shopID), shopRoleType, shopRoleValue) ;
     }
 
-    @PreAuthorize("hasAnyAuthority('root','boss')")
+    @PreAuthorize("hasAnyAuthority('boss')")
     @PostMapping("/updateRole")
     @ApiOperation(value = "修改商铺规则")
     @ApiImplicitParams({
@@ -58,7 +45,7 @@ public class ShopRoleController {
         return shopRoleService.UpdateShopRoleService(UsualMethodUtils.parseID(shopID), shopRoleType, shopRoleValue) ;
     }
 
-    @PreAuthorize("hasAnyAuthority('root','boss')")
+    @PreAuthorize("hasAnyAuthority('boss')")
     @DeleteMapping("/remove")
     @ApiOperation(value = "移除商铺规则")
     @ApiImplicitParams({
