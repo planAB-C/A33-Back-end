@@ -35,7 +35,7 @@ public class LocationController {
         return locationService.getMondayThisWeek() ;
     }
 
-    @PreAuthorize("hasAnyAuthority('root','boss','manage','group')")
+    @PreAuthorize("hasAnyAuthority('boss','manage','group')")
     @GetMapping("/week")
     @ApiOperation(value = "按周展示员工的工作安排")
     @ApiImplicitParams({
@@ -45,7 +45,7 @@ public class LocationController {
         return locationService.showAllLocationsByWeek(dateTimeWeek) ;
     }
 
-    @PreAuthorize("hasAnyAuthority('root','boss','manage','group')")
+    @PreAuthorize("hasAnyAuthority('boss','manage','group')")
     @GetMapping("/day")
     @ApiOperation(value = "按日展示员工的工作安排")
     @ApiImplicitParams({
@@ -55,7 +55,7 @@ public class LocationController {
         return locationService.showAllLocationsByDay(dateTimeDay) ;
     }
 
-    @PreAuthorize("hasAnyAuthority('root','boss','manage')")
+    @PreAuthorize("hasAnyAuthority('boss','manage')")
     @GetMapping("/allGroup")
     @ApiOperation(value = "展示所有的小组长和及其组员(原：展示所有组。现为了表达更准确换一个表达方式)")
     public Result showAllGroup(){
@@ -82,7 +82,7 @@ public class LocationController {
         return locationService.showAllLocationsByGroup(UsualMethodUtils.parseID(groupID)) ;
     }
 
-    @PreAuthorize("hasAnyAuthority('root','boss','manage','group')")
+    @PreAuthorize("hasAnyAuthority('boss','manage','group')")
     @GetMapping("/details")
     @ApiOperation(value = "展示员工的具体信息")
     @ApiImplicitParams({
@@ -92,7 +92,7 @@ public class LocationController {
         return locationService.showEmployeeDetails(UsualMethodUtils.parseID(employeeID)) ;
     }
 
-    @PreAuthorize("hasAnyAuthority('root','boss','manage')")
+    @PreAuthorize("hasAnyAuthority('boss','manage')")
     @PutMapping("/manage")
     @ApiOperation(value = "手动安排员工班次（新增：可多选）")
     @ApiImplicitParams({
@@ -103,7 +103,7 @@ public class LocationController {
         return locationService.manageEmployeeLocationsByHand( employeeID, locationID) ;
     }
 
-    @PreAuthorize("hasAnyAuthority('root','boss','manage')")
+    @PreAuthorize("hasAnyAuthority('boss','manage')")
     @DeleteMapping("/remove")
     @ApiOperation(value = "手动移除员工班次（新增：可多选）")
     @ApiImplicitParams({
@@ -114,7 +114,7 @@ public class LocationController {
         return locationService.removeLocationsByHand(  employeeID , locationID) ;
     }
 
-    @PreAuthorize("hasAnyAuthority('root','boss','manage','group')")
+    @PreAuthorize("hasAnyAuthority('boss','manage','group')")
     @GetMapping("/name")
     @ApiOperation(value = "（搜索时使用）通过员工姓名展示员工（与/A33/location/freeEmployees搭配使使用）")
     @ApiImplicitParams({
@@ -124,7 +124,7 @@ public class LocationController {
         return locationService.showEmployeeByName( name) ;
     }
 
-    @PreAuthorize("hasAnyAuthority('root','boss','manage','group')")
+    @PreAuthorize("hasAnyAuthority('boss','manage','group')")
     @GetMapping("/selectLocations")
     @ApiOperation(value = "搭配/A33/location/name接口使用，上述接口选中传入email信息，用于展示所搜索的用户所有的排班信息")
     @ApiImplicitParams({

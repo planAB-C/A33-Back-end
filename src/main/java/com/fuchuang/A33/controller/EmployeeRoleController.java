@@ -20,19 +20,16 @@ public class EmployeeRoleController {
     @Autowired
     private EmployeeRoleServiceImpl employeeRoleService ;
 
-    @PreAuthorize("hasAnyAuthority('root','boss','manage','group','view')")
+    @PreAuthorize("hasAnyAuthority('boss','manage','group','view')")
     @PostMapping("/add")
     @ApiOperation(value = "更改员工偏好")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "employeeID", value = "员工ID" ,dataType= "String"),
+
             @ApiImplicitParam(name = "hobbyType1", value = "员工偏好1" ,dataType= "String"),
             @ApiImplicitParam(name = "hobbyValue1", value = "员工偏好值1" ,dataType= "String"),
-
-            @ApiImplicitParam(name = "employeeID", value = "员工ID" ,dataType= "String"),
             @ApiImplicitParam(name = "hobbyType2", value = "员工偏好2" ,dataType= "String"),
             @ApiImplicitParam(name = "hobbyValue2", value = "员工偏好值2" ,dataType= "String"),
-
-            @ApiImplicitParam(name = "employeeID", value = "员工ID" ,dataType= "String"),
             @ApiImplicitParam(name = "hobbyType3", value = "员工偏好3" ,dataType= "String"),
             @ApiImplicitParam(name = "hobbyValue3", value = "员工偏好值3" ,dataType= "String")
     })
