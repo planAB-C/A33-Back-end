@@ -1,6 +1,7 @@
 package com.fuchuang.A33.utils;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.alibaba.fastjson.support.odps.udf.CodecCheck;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.fuchuang.A33.DTO.WorkingDTO;
 import com.fuchuang.A33.entity.Employee;
@@ -61,20 +62,37 @@ public class UsualMethodUtils {
         return ID ;
     }
 
-    public static ArrayList<WorkingDTO> getLocationsByWorking(List<Employee> employeeList , WorkingMapper workingMapper){
-        ArrayList<WorkingDTO> workingDTOS = new ArrayList<>();
-        for (Employee employee : employeeList) {
-            List<Working> workingList = workingMapper.selectList(new QueryWrapper<Working>().eq("employee_ID", employee.getID()));
-            for (Working working : workingList) {
-                if (!Objects.isNull(working)) {
-                    WorkingDTO workingDTO = new WorkingDTO();
-                    BeanUtil.copyProperties(working, workingDTO);
-                    workingDTO.setLocationRealID(working.getLocationID().substring(11));
-                    workingDTOS.add(workingDTO);
+    public static ArrayList<ArrayList<ArrayList<WorkingDTO>>> getLocationsByWorking(List<Employee> employeeList
+            , WorkingMapper workingMapper , String dateTime){
+        ArrayList<WorkingDTO> workingDTOList1 = new ArrayList<>();
+        ArrayList<ArrayList<WorkingDTO>> workingDTOList2 = new ArrayList<>();
+        ArrayList<ArrayList<ArrayList<WorkingDTO>>> workingDTOList3 = new ArrayList<>();
+
+        LocalDateTime localDateTime = parseToMonday(StringToChineseLocalDateTime(dateTime));
+        LocalDateTime time = localDateTime.plusWeeks(1);
+        while(localDateTime.isBefore(time)){
+            for (Employee employee : employeeList) {
+                List<Working> workingList = workingMapper.selectList(new QueryWrapper<Working>()
+                        .eq("employee_ID", employee.getID())
+                        .likeRight("location_ID",localDateTime.toString().substring(0,10)));
+                if(workingList.size()!=0 && employeeList.size()!=0) {
+                    for (Working working : workingList) {
+                        if (!Objects.isNull(working)) {
+                            WorkingDTO workingDTO = new WorkingDTO();
+                            BeanUtil.copyProperties(working, workingDTO);
+                            workingDTO.setLocationRealID(working.getLocationID().substring(11));
+                            workingDTOList1.add(workingDTO);
+                            workingDTOList2.add(workingDTOList1) ;
+                            workingDTOList1 = new ArrayList<>() ;
+                        }
+                    }
+                    workingDTOList3.add(workingDTOList2) ;
+                    workingDTOList2 = new ArrayList<>() ;
                 }
             }
+            localDateTime = localDateTime.plusDays(1) ;
         }
-        return workingDTOS ;
+        return workingDTOList3 ;
     }
 
 }
