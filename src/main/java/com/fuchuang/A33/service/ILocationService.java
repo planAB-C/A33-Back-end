@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Repository
 public interface ILocationService {
-    Result getThreeWeeks(String dateTimeWeek) ;
+    Result getThreeMonthes(String dateTimeWeek) ;
     Result getMondayThisWeek() ;
     Result showAllLocationsByWeek(String dateTimeDay);
     Result showAllLocationsByDay(String dateTimeDay);

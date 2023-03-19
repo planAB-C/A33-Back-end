@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/root")
-@Api(value = "root页面（暂时不需要写）")
+@Api(tags = "root页面（暂时不需要写）")
 public class RootController {
     @Autowired
     private ShopRoleServiceImpl shopRoleService ;
@@ -61,7 +61,7 @@ public class RootController {
             @ApiImplicitParam(name = "belong", value = "员工所属的组长的邮箱" ,dataType= "String") ,
             @ApiImplicitParam(name = "phone", value = "员工电话号码" ,dataType= "String") ,
     })
-    public Result updateOtherImformation(String ID ,String email,String position , String belong, String phone){
-        return employeeService.updateOtherImformation( UsualMethodUtils.parseID(ID) ,  email , position , belong , phone) ;
+    public Result updateOtherImformation(String ID ,String name ,String email,String position , String belong, String phone){
+        return employeeService.updateOtherImformation( UsualMethodUtils.parseID(ID) , name , email , position , belong , phone) ;
     }
 }

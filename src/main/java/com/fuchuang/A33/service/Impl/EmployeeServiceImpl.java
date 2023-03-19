@@ -88,6 +88,15 @@ public class EmployeeServiceImpl implements IEmployeeService {
 
     @Override
     public Result regist(String name, String email, String position, String shopId ,String belong ,String phone) {
+        if (name ==null || email ==null || position ==null || shopId ==null  || phone ==null ){
+            return Result.fail(500,"filed can not be null") ;
+        }
+        ArrayList<String> list = new ArrayList<>();
+        list.add("root") ;list.add("店长") ;list.add("经理") ;list.add("小组长") ;list.add("收营员") ;list.add("导购") ;list.add("库房") ;
+        if (!list.contains(position)){
+            return Result.fail(500,"The position is illegal") ;
+        }
+
         Employee employee = employeeMapper.selectOne(new QueryWrapper<Employee>().eq("email", email));
         if(!Objects.isNull(employee)){
             return Result.fail(500,"this email has already registed ");
@@ -115,6 +124,9 @@ public class EmployeeServiceImpl implements IEmployeeService {
         }
 
         //添加默认的员工规则
+        long allCounts = timesMapper.selectCount(new QueryWrapper<>()) + 1;
+        if(allCounts<10) ID = "0" + allCounts ;
+        else ID = Long.toString(allCounts);
         EmployeeRole employeeRole = new EmployeeRole();
         employeeRole.setEmployeeID(ID);
         employeeRole.setHobbyType("工作日偏好") ;
@@ -155,9 +167,8 @@ public class EmployeeServiceImpl implements IEmployeeService {
     }
 
     @Override
-    public Result updateEmployeeInformation(String email, String position,String phone) {
+    public Result updateEmployeeInformation(String email ,String phone) {
         Employee employee = new Employee();
-        employee.setPosition(position);
         employee.setEmail(email);
         employee.setPhone(phone);
         int rows = employeeMapper.update(employee, new UpdateWrapper<Employee>().eq("ID", EmployeeHolder.getEmloyee().getID()));
@@ -250,7 +261,7 @@ public class EmployeeServiceImpl implements IEmployeeService {
     }
 
     @Override
-    public Result updateOtherImformation(String ID, String email, String position, String belong ,String phone) {
+    public Result updateOtherImformation(String ID, String name , String email, String position, String belong ,String phone) {
         Employee group = employeeMapper.selectOne(new QueryWrapper<Employee>().eq("email",belong)) ;
         if (!Objects.isNull(group))  belong = group.getID() ;
         else belong = "00" ;
@@ -273,6 +284,7 @@ public class EmployeeServiceImpl implements IEmployeeService {
 
         //限定只能修改root和boss权限以下和本商店的员工
         Employee employee = new Employee();
+        employee.setName(name);
         employee.setEmail(email);
         employee.setPosition(position);
         employee.setBelong(belong);

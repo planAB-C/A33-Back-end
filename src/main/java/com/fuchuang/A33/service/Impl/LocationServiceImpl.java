@@ -1,6 +1,7 @@
 package com.fuchuang.A33.service.Impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.alibaba.fastjson.support.odps.udf.CodecCheck;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.fuchuang.A33.DTO.EmployeeDTO;
@@ -57,33 +58,34 @@ public class LocationServiceImpl implements ILocationService {
      * @return
      */
     @Override
-    public Result getThreeWeeks(String dateTimeWeek) {
+    public Result getThreeMonthes(String dateTimeWeek) {
         ArrayList<WeeksDTO> weeksDTOList = new ArrayList<>();
 
         LocalDateTime localDateTime = UsualMethodUtils.StringToChineseLocalDateTime(dateTimeWeek);
-        LocalDateTime thisWeek = UsualMethodUtils.parseToMonday(localDateTime);
-        LocalDateTime lastWeek = thisWeek.minusWeeks(1) ;
-        LocalDateTime nextWeek = thisWeek.plusWeeks(1);
 
-        String lastWeek1 = lastWeek.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        String thisWeek1 = thisWeek.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        String nextWeek1 = nextWeek.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        WeeksDTO week1 = new WeeksDTO("上周",
-                lastWeek1, String.valueOf(lastWeek.getDayOfMonth()),
-                String.valueOf(thisWeek.minusDays(1).getDayOfMonth()));
+        LocalDateTime today = UsualMethodUtils.parseToMonday(localDateTime);
+        LocalDateTime lastThreeMonthes = today.minusMonths(3);
+        LocalDateTime NextThreeMonthes = today.plusMonths(3);
+        LocalDateTime time = lastThreeMonthes ;
 
-        WeeksDTO week2 = new WeeksDTO("本周",
-                thisWeek1, String.valueOf(thisWeek.getDayOfMonth()),
-                String.valueOf(nextWeek.minusDays(1).getDayOfMonth()));
+        int count = 1 ;
+        String counts = "第" + count + "周" ;
+        while(time.isBefore(NextThreeMonthes.plusWeeks(1))){
+            String date = time.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            int start = time.getDayOfMonth();
+            LocalDateTime nextWeek = time.plusWeeks(1).minusDays(1);
+            int end = nextWeek.getDayOfMonth();
 
-
-        WeeksDTO week3 = new WeeksDTO("下周",
-                nextWeek1, String.valueOf(nextWeek.getDayOfMonth()),
-                String.valueOf(nextWeek.plusWeeks(1).minusDays(1).getDayOfMonth()));
-
-        weeksDTOList.add(week1) ;
-        weeksDTOList.add(week2) ;
-        weeksDTOList.add(week3) ;
+            WeeksDTO weeksDTO = new WeeksDTO();
+            weeksDTO.setCounts(counts);
+            weeksDTO.setWeek(date);
+            weeksDTO.setStartDay(start>=10 ? String.valueOf(start) : "0" + start);
+            weeksDTO.setEndDay(end>=10 ? String.valueOf(end) : "0" + end);
+            count++ ;
+            time = time.plusWeeks(1) ;
+            counts = "第" + count + "周" ;
+            weeksDTOList.add(weeksDTO) ;
+        }
         return Result.success(200,weeksDTOList);
     }
 
@@ -110,7 +112,6 @@ public class LocationServiceImpl implements ILocationService {
      */
     @Override
     public Result showAllLocationsByWeek(String dateTimeWeek) {
-//        String dateTime = getMonday(dateTimeWeek) ;
         //对字符串进行解析
         LocalDateTime localDateTime = UsualMethodUtils.StringToChineseLocalDateTime(dateTimeWeek) ;
 
@@ -118,30 +119,44 @@ public class LocationServiceImpl implements ILocationService {
         if (localDateTime.getDayOfWeek()!=DayOfWeek.MONDAY){
             localDateTime = UsualMethodUtils.parseToMonday(localDateTime) ;
         }
-        ArrayList<WorkingDTO> workingDTOList = new ArrayList<>();
-        ArrayList<List<WorkingDTO>> list = new ArrayList<>();
+        ArrayList<WorkingDTO> workingDTOList1 = new ArrayList<>();
+        ArrayList<List<WorkingDTO>> workingDTOList2 = new ArrayList<>() ;
+        ArrayList<List<List<WorkingDTO>>> workingDTOList3 = new ArrayList<>();
+
         //对本周的值班情况进行查询
         for(int i = 0 ; i < 7 ; i++){
             //将天数进行转化
             String date = localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
             List<Location> locationList = locationsMapper.selectList(new QueryWrapper<Location>().like("ID",date));
-            for (Location location : locationList) {
-                List<Working> workingList = workingMapper.selectList(new QueryWrapper<Working>().eq("location_ID", location.getID()));
-                for (Working working : workingList) {
-                    WorkingDTO workingDTO = new WorkingDTO();
-                    //将结果转换成locationDTO对象
-                    BeanUtil.copyProperties(working, workingDTO);
-                    workingDTO.setLocationRealID(location.getID().substring(11));
-                    workingDTOList.add(workingDTO) ;
+            if(locationList.size()!=0) {
+                for (Location location : locationList) {
+                    List<Working> workingList = workingMapper.selectList(new QueryWrapper<Working>().eq("location_ID", location.getID()));
+                    if (locationList.size() != 0 && workingList.size() != 0) {
+                        for (Working working : workingList) {
+                            WorkingDTO workingDTO = new WorkingDTO();
+                            //将结果转换成locationDTO对象
+                            BeanUtil.copyProperties(working, workingDTO);
+                            workingDTO.setLocationRealID(location.getID().substring(11));
+                            workingDTOList1.add(workingDTO);
+                            workingDTOList2.add(workingDTOList1);
+                            workingDTOList1 = new ArrayList<>();
+                        }
+                    }
                 }
             }
-            list.add(workingDTOList) ;
-            workingDTOList = new ArrayList<>();
+            else {
+                workingDTOList2.add(workingDTOList1) ;
+                workingDTOList1 = new ArrayList<>() ;
+            }
+
+            workingDTOList3.add(workingDTOList2) ;
+            workingDTOList2 = new ArrayList<>() ;
             //天数加1
             localDateTime = localDateTime.plusDays(1) ;
         }
-        return Result.success(200, list);
+
+        return Result.success(200, workingDTOList3);
     }
 
     /**
@@ -152,20 +167,29 @@ public class LocationServiceImpl implements ILocationService {
     @Override
     public Result showAllLocationsByDay(String dateTimeDay) {
         //同上述用法一致
-        List<Location> locationList = locationsMapper.selectList(new QueryWrapper<Location>().like("ID",dateTimeDay));
-        ArrayList<WorkingDTO> workingDTOList = new ArrayList<>();
-        for (Location location : locationList) {
-            String LocationRealID = location.getID().substring(11);
-            List<Working> workingList = workingMapper.selectList(new QueryWrapper<Working>()
-                    .eq("location_ID", location.getID()));
-            for (Working working : workingList) {
-                WorkingDTO workingDTO = new WorkingDTO();
-                BeanUtil.copyProperties(working, workingDTO);
-                workingDTO.setLocationRealID(LocationRealID);
-                workingDTOList.add(workingDTO) ;
+        List<Location> locationList = locationsMapper.selectList(new QueryWrapper<Location>().like("ID", dateTimeDay));
+        ArrayList<WorkingDTO> workingDTOList1 = new ArrayList<>();
+        ArrayList<ArrayList<WorkingDTO>> workingDTOList2 = new ArrayList<>();
+        if (locationList.size() != 0) {
+            for (Location location : locationList) {
+                String LocationRealID = location.getID().substring(11);
+                List<Working> workingList = workingMapper.selectList(new QueryWrapper<Working>()
+                        .eq("location_ID", location.getID()));
+                if (workingList.size() != 0) {
+                    for (Working working : workingList) {
+                        WorkingDTO workingDTO = new WorkingDTO();
+                        BeanUtil.copyProperties(working, workingDTO);
+                        workingDTO.setLocationRealID(LocationRealID);
+                        workingDTOList1.add(workingDTO);
+                    }
+                    workingDTOList2.add(workingDTOList1);
+                    workingDTOList1 = new ArrayList<>();
+                }
             }
+        }else{
+            workingDTOList2.add(workingDTOList1) ;
         }
-        return Result.success(200, workingDTOList);
+        return Result.success(200, workingDTOList2);
     }
 
     /**

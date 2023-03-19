@@ -19,13 +19,13 @@ public class LocationController {
     @Autowired
     private LocationServiceImpl locationService ;
 
-    @GetMapping("/threeWeeks")
-    @ApiOperation(value = "获取上周、本周、下周的具体时间")
+    @GetMapping("/threeMonthes")
+    @ApiOperation(value = "获取前三个月和后三个月的具体时间")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "dateTime", value = "当前时间" ,dataType= "String")
     })
-    public Result getThreeWeeks(String dateTime){
-        return locationService.getThreeWeeks(dateTime) ;
+    public Result getThreeMonthes(String dateTime){
+        return locationService.getThreeMonthes(dateTime) ;
     }
 
 
