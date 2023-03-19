@@ -67,9 +67,10 @@ public class LocationController {
     @ApiOperation(value = "按职位展示排班(新增)")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "position", value = "职位" ,dataType= "String") ,
+            @ApiImplicitParam(name = "dateTime", value = "当前时间" ,dataType= "String") ,
     })
-    public Result showEmployeesByPosition(String position){
-        return locationService.showEmployeeLocationsByPosition(position) ;
+    public Result showEmployeesByPosition(String position , String dateTime){
+        return locationService.showEmployeeLocationsByPosition(position,dateTime) ;
     }
 
     @PreAuthorize("hasAnyAuthority('boss','manage','group')")
@@ -77,9 +78,10 @@ public class LocationController {
     @ApiOperation(value = "按组展示员工的排班信息")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "groupID", value = "选中的组别，将选中的小组长的ID信息传入" ,dataType= "String") ,
+            @ApiImplicitParam(name = "dateTime", value = "当前时间" ,dataType= "String")
     })
-    public Result showAllLocationsByGroup(String groupID){
-        return locationService.showAllLocationsByGroup(UsualMethodUtils.parseID(groupID)) ;
+    public Result showAllLocationsByGroup(String groupID ,String dateTime){
+        return locationService.showAllLocationsByGroup(UsualMethodUtils.parseID(groupID) , dateTime) ;
     }
 
     @PreAuthorize("hasAnyAuthority('boss','manage','group')")
@@ -126,7 +128,7 @@ public class LocationController {
 
     @PreAuthorize("hasAnyAuthority('boss','manage','group')")
     @GetMapping("/selectLocations")
-    @ApiOperation(value = "搭配/A33/location/name接口使用，上述接口选中传入email信息，用于展示所搜索的用户所有的排班信息")
+    @ApiOperation(value = "搭配/A33/location/name接口使用，上述接口选中传入email信息，用于展示所搜索的员工的所有的排班信息")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "dateTime", value = "日期" ,dataType= "String") ,
             @ApiImplicitParam(name = "email", value = "员工邮箱" ,dataType= "String")
@@ -137,7 +139,7 @@ public class LocationController {
 
     @PreAuthorize("hasAnyAuthority('boss','manage','group')")
     @GetMapping("/showFree")
-    @ApiOperation(value = "展示所有的空闲用户")
+    @ApiOperation(value = "展示所有的空闲员工")
     public Result showFreeEmployees(){
         return locationService.showFreeEmployees() ;
     }

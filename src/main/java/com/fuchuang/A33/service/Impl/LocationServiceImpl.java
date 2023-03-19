@@ -186,8 +186,6 @@ public class LocationServiceImpl implements ILocationService {
                     workingDTOList1 = new ArrayList<>();
                 }
             }
-        }else{
-            workingDTOList2.add(workingDTOList1) ;
         }
         return Result.success(200, workingDTOList2);
     }
@@ -214,11 +212,11 @@ public class LocationServiceImpl implements ILocationService {
      * @return
      */
     @Override
-    public Result showAllLocationsByGroup(String groupID) {
+    public Result showAllLocationsByGroup(String groupID , String dateTime) {
         List<Employee> employeeList = employeeMapper.selectList(new QueryWrapper<Employee>().eq("belong", groupID));
         Employee em = employeeMapper.selectOne(new QueryWrapper<Employee>().eq("ID", groupID));
         employeeList.add(em) ;
-        ArrayList<WorkingDTO> workingDTOS = getLocationsByWorking(employeeList,workingMapper) ;
+        ArrayList<ArrayList<ArrayList<WorkingDTO>>> workingDTOS = getLocationsByWorking(employeeList, workingMapper ,dateTime);
         return Result.success(200,workingDTOS);
     }
 
@@ -500,14 +498,27 @@ public class LocationServiceImpl implements ILocationService {
     }
 
     @Override
-    public Result showEmployeeLocationsByPosition(String position) {
+    public Result showEmployeeLocationsByPosition(String position , String dateTime) {
         if (position.equals("root")){
             return Result.fail(500,"root用户不能被查询") ;
         }
-        List<Employee> employees = employeeMapper.selectList(new QueryWrapper<Employee>()
-                .eq("position", position)
-                .eq("shop_ID", EmployeeHolder.getEmloyee().getShopID()));
-        ArrayList<WorkingDTO> workingDTOS = getLocationsByWorking(employees , workingMapper) ;
+        ArrayList<String> list = new ArrayList<>();
+        list.add("店长") ;list.add("经理") ;list.add("小组长") ;
+        ArrayList<ArrayList<ArrayList<WorkingDTO>>> workingDTOS = new ArrayList<>() ;
+        if (list.contains(position)) {
+            List<Employee> employees = employeeMapper.selectList(new QueryWrapper<Employee>()
+                    .eq("position", position)
+                    .eq("shop_ID", EmployeeHolder.getEmloyee().getShopID()));
+            workingDTOS = getLocationsByWorking(employees, workingMapper,dateTime);
+        }else {
+            List<Employee> employees = employeeMapper.selectList(new QueryWrapper<Employee>()
+                    .ne("position", list.get(0))
+                    .ne("position", list.get(1))
+                    .ne("position", list.get(2))
+                    .ne("position", list.get(3))
+                    .eq("shop_ID", EmployeeHolder.getEmloyee().getShopID()));
+            workingDTOS = getLocationsByWorking(employees, workingMapper,dateTime);
+        }
         return Result.success(200,workingDTOS);
     }
 

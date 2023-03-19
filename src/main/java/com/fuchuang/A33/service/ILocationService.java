@@ -13,12 +13,12 @@ public interface ILocationService {
     Result showAllLocationsByWeek(String dateTimeDay);
     Result showAllLocationsByDay(String dateTimeDay);
     Result showAllGroup () ;
-    Result showAllLocationsByGroup(String groupID);
+    Result showAllLocationsByGroup(String groupID , String dateTime);
     ResultWithToken showEmployeeDetails(String employeeID) ;
     Result manageEmployeeLocationsByHand( String LocationID , String... locationIDList) ;
     Result removeLocationsByHand( String employeeID , String... LocationIDList) ;
     Result showEmployeeByName( String name) ;
     Result showEmployeeLocationsByEmail(String dateTime ,String email) ;
     Result showFreeEmployees() ;
-    Result showEmployeeLocationsByPosition(String position);
+    Result showEmployeeLocationsByPosition(String position , String dateTime);
 }

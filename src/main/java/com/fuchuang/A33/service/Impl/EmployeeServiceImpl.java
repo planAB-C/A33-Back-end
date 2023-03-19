@@ -92,7 +92,7 @@ public class EmployeeServiceImpl implements IEmployeeService {
             return Result.fail(500,"filed can not be null") ;
         }
         ArrayList<String> list = new ArrayList<>();
-        list.add("root") ;list.add("店长") ;list.add("经理") ;list.add("小组长") ;list.add("收营员") ;list.add("导购") ;list.add("库房") ;
+        list.add("店长") ;list.add("经理") ;list.add("小组长") ;list.add("收营员") ;list.add("导购") ;list.add("库房") ;
         if (!list.contains(position)){
             return Result.fail(500,"The position is illegal") ;
         }
