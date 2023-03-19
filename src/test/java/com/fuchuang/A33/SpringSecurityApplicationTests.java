@@ -26,11 +26,6 @@ class SpringSecurityApplicationTests {
 
     @Test
     void test1() {
-        Result result = locationService.getThreeMonthes("2023-03-18");
-        ArrayList<WeeksDTO> data =(ArrayList<WeeksDTO>) result.getData();
-        for (WeeksDTO datum : data) {
-            System.out.println(datum);
-        }
     }
 
 }

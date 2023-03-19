@@ -66,15 +66,13 @@ public class EmployeeController {
 
     @PreAuthorize("hasAnyAuthority('boss','manage','group','view')")
     @PutMapping("/updateOwn")
-    @ApiOperation(value = "修改个人信息(需要更改,新增员工手机号码)" )
+    @ApiOperation(value = "修改个人信息(需要更改,新增员工手机号码)（有修改，删除position字段）" )
     @ApiImplicitParams({
             @ApiImplicitParam(name = "email", value = "员工邮箱" ,dataType= "String") ,
-            @ApiImplicitParam(name = "position", value = "员工职位" ,dataType= "String") ,
             @ApiImplicitParam(name = "phone", value = "员工手机号码" ,dataType= "String") ,
-
     })
-    public Result updateOwnImformation(String email,String position,String phone ){
-        return employeeService.updateEmployeeInformation(email,position,phone ) ;
+    public Result updateOwnImformation(String email, String phone ){
+        return employeeService.updateEmployeeInformation(email,phone ) ;
     }
 
     @PreAuthorize("hasAnyAuthority('boss','manage','group','view')")
@@ -86,16 +84,17 @@ public class EmployeeController {
 
     @PreAuthorize("hasAnyAuthority('boss')")
     @PutMapping("/updateOther")
-    @ApiOperation(value = "高权限用户(boss)修改员工信息" )
+    @ApiOperation(value = "高权限用户(boss)修改员工信息（有修改，新增name字段）" )
     @ApiImplicitParams({
             @ApiImplicitParam(name = "ID", value = "员工ID，前端选中后传入" ,dataType= "String") ,
+            @ApiImplicitParam(name = "name", value = "员工姓名" ,dataType= "String") ,
             @ApiImplicitParam(name = "email", value = "员工邮箱" ,dataType= "String") ,
             @ApiImplicitParam(name = "position", value = "员工职位" ,dataType= "String") ,
             @ApiImplicitParam(name = "belong", value = "员工所属的组长的邮箱" ,dataType= "String") ,
             @ApiImplicitParam(name = "phone", value = "员工电话号码" ,dataType= "String") ,
     })
-    public Result updateOtherImformation(String ID ,String email,String position , String belong, String phone){
-        return employeeService.updateOtherImformation( UsualMethodUtils.parseID(ID) ,  email , position , belong , phone) ;
+    public Result updateOtherImformation(String ID ,String name ,String email,String position , String belong, String phone){
+        return employeeService.updateOtherImformation( UsualMethodUtils.parseID(ID) , name ,  email , position , belong , phone) ;
     }
 
 }
