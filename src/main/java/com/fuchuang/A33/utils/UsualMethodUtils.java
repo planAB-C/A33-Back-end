@@ -1,7 +1,6 @@
 package com.fuchuang.A33.utils;
 
 import cn.hutool.core.bean.BeanUtil;
-import com.alibaba.fastjson.support.odps.udf.CodecCheck;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.fuchuang.A33.DTO.WorkingDTO;
 import com.fuchuang.A33.entity.Employee;
@@ -52,7 +51,7 @@ public class UsualMethodUtils {
     public static String getRealFlowID(String locationID ){
         String ID ;
         LocalDateTime week = StringToChineseLocalDateTime(locationID.substring(0, 10));
-        int i = 0 ;
+        int i  ;
         for( i = 0 ; i < 7 ; i++ ){
             if (week.minusDays(i).getDayOfWeek() == DayOfWeek.MONDAY) break ;
         }
@@ -68,7 +67,7 @@ public class UsualMethodUtils {
         ArrayList<ArrayList<WorkingDTO>> workingDTOList2 = new ArrayList<>();
         ArrayList<ArrayList<ArrayList<WorkingDTO>>> workingDTOList3 = new ArrayList<>();
 
-        LocalDateTime localDateTime = parseToMonday(StringToChineseLocalDateTime(dateTime));
+        LocalDateTime localDateTime = parseToMonday(dateTime);
         LocalDateTime time = localDateTime.plusWeeks(1);
         while(localDateTime.isBefore(time)){
             for (Employee employee : employeeList) {
@@ -86,10 +85,13 @@ public class UsualMethodUtils {
                             workingDTOList1 = new ArrayList<>() ;
                         }
                     }
-                    workingDTOList3.add(workingDTOList2) ;
-                    workingDTOList2 = new ArrayList<>() ;
                 }
             }
+            if (workingDTOList2.isEmpty()){
+                workingDTOList2.add(new ArrayList<>()) ;
+            }
+            workingDTOList3.add(workingDTOList2) ;
+            workingDTOList2 = new ArrayList<>() ;
             localDateTime = localDateTime.plusDays(1) ;
         }
         return workingDTOList3 ;
