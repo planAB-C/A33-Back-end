@@ -1,11 +1,11 @@
 package com.fuchuang.A33.service.Impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.fuchuang.A33.entity.Employee;
-import com.fuchuang.A33.entity.EmployeeRole;
-import com.fuchuang.A33.entity.Shop;
-import com.fuchuang.A33.entity.ShopRole;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.fuchuang.A33.DTO.ShopDiyRoleDTO;
+import com.fuchuang.A33.entity.*;
 import com.fuchuang.A33.mapper.EmployeeMapper;
+import com.fuchuang.A33.mapper.ShopDiyRoleMapper;
 import com.fuchuang.A33.mapper.ShopMapper;
 import com.fuchuang.A33.mapper.ShopRoleMapper;
 import com.fuchuang.A33.service.IShopRoleService;
@@ -25,6 +25,9 @@ public class ShopRoleServiceImpl implements IShopRoleService {
 
     @Autowired
     private ShopMapper shopMapper ;
+
+    @Autowired
+    private ShopDiyRoleMapper shopDiyRoleMapper;
 
     @Override
     public Result addShopRoleService(String shopID, String shopRoleType , String shopRoleValue) {
@@ -68,5 +71,39 @@ public class ShopRoleServiceImpl implements IShopRoleService {
         else ID = count + 1 + "" ;
         shopMapper.insert(new Shop(ID,name,address,size)) ;
         return Result.success(200);
+    }
+
+    @Override
+    public Result addShopDiyRoleService(ShopDiyRole shopDiyRole) {
+        Long count = shopDiyRoleMapper.selectCount(new QueryWrapper<>());
+        String ID = null ;
+        if (count<=8) ID = "0" + (count + 1) + "" ;
+        else ID = count + 1 + "" ;
+        shopDiyRole.setID(ID);
+        int rows = shopDiyRoleMapper.insert(shopDiyRole) ;
+        if (rows==0) return Result.fail(500,"操作不成功，请确认后重新操作") ;
+        return Result.success(200);
+    }
+
+    @Override
+    public Result updateShopDiyRoleService(ShopDiyRole shopDiyRole) {
+        int rows =0 ;
+        rows = shopDiyRoleMapper.update(shopDiyRole, Wrappers.<ShopDiyRole>lambdaQuery().eq(ShopDiyRole::getID,shopDiyRole.getID())) ;
+        if (rows==0) return Result.fail(500,"操作不成功，请确认后重新操作") ;
+        return Result.success(200);
+    }
+
+    @Override
+    public Result removeShopDiyRoleService(ShopDiyRole shopDiyRole) {
+        int rows = shopDiyRoleMapper.delete(new QueryWrapper<ShopDiyRole>().eq("ID",shopDiyRole.getID())) ;
+        if (rows==0){
+            return Result.fail(500,"操作不成功，请重新操作") ;
+        }
+        return Result.success(200);
+    }
+
+    @Override
+    public Result showShopDiyRoleService(){
+        return Result.success(200,shopDiyRoleMapper.selectList(Wrappers.<ShopDiyRole>lambdaQuery().like(ShopDiyRole::getID,"")));
     }
 }

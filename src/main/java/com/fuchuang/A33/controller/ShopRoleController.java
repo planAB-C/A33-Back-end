@@ -1,5 +1,6 @@
 package com.fuchuang.A33.controller;
 
+import com.fuchuang.A33.entity.ShopDiyRole;
 import com.fuchuang.A33.service.Impl.ShopRoleServiceImpl;
 import com.fuchuang.A33.utils.UsualMethodUtils;
 import com.fuchuang.A33.utils.Result;
@@ -9,10 +10,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/shopRole")
@@ -54,5 +52,16 @@ public class ShopRoleController {
     })
     public Result removeEmployeeRole(String shopID ,String shopRoleType){
         return shopRoleService.removeShopRoleService(UsualMethodUtils.parseID(shopID), shopRoleType) ;
+    }
+
+    @PreAuthorize("hasAnyAuthority('boss')")
+    @DeleteMapping("/removeDiy")
+    @ApiOperation(value = "移除商铺规则")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "shopID", value = "商铺ID" ,dataType= "String"),
+            @ApiImplicitParam(name = "shopRoleType", value = "商铺规则类型" ,dataType= "String")
+    })
+    public Result removeShopDiyRole(@RequestBody ShopDiyRole shopDiyRole){
+        return shopRoleService.removeShopDiyRoleService(shopDiyRole) ;
     }
 }
